@@ -308,6 +308,15 @@ static void draw_number_scaled(int x, int y, int value, int scale)
     draw_text(x, y, text, scale);
 }
 
+static void draw_number_centered(int center_x, int y, int value, int scale)
+{
+    char text[16];
+    int width;
+    snprintf(text, sizeof(text), "%d", value);
+    width = (int)strlen(text) * 6 * scale;
+    draw_text(center_x - width / 2, y, text, scale);
+}
+
 static void draw_time_icon(int x, int y, int night)
 {
     if (!night) {
@@ -424,6 +433,70 @@ void zombie_host_settings_save(int sound, int music, int global, int dialogue)
     fprintf(file, "%d %d %d %d\n", sound_volume, music_volume, global_volume,
             dialogue);
     fclose(file);
+}
+
+static void read_high_scores(int *classic, int *enhanced)
+{
+    char path[512];
+    FILE *file;
+    *classic = 0;
+    *enhanced = 0;
+    snprintf(path, sizeof(path), "%s/highscores.cfg", data_root[0] ? data_root : ".");
+    file = fopen(path, "r");
+    if (!file) return;
+    if (fscanf(file, "%d %d", classic, enhanced) != 2) {
+        *classic = 0;
+        *enhanced = 0;
+    }
+    fclose(file);
+    if (*classic < 0) *classic = 0;
+    if (*enhanced < 0) *enhanced = 0;
+}
+
+static void write_high_scores(int classic, int enhanced)
+{
+    char path[512];
+    FILE *file;
+    snprintf(path, sizeof(path), "%s/highscores.cfg", data_root[0] ? data_root : ".");
+    file = fopen(path, "w");
+    if (!file) return;
+    fprintf(file, "%d %d\n", classic, enhanced);
+    fclose(file);
+}
+
+unsigned int zombie_host_high_score_load(int mode)
+{
+    int classic;
+    int enhanced;
+    read_high_scores(&classic, &enhanced);
+    return (unsigned int)(mode == 0 ? classic : enhanced);
+}
+
+void zombie_host_high_score_save(int mode, int score)
+{
+    int classic;
+    int enhanced;
+    if (score < 0) score = 0;
+    read_high_scores(&classic, &enhanced);
+    if (mode == 0) {
+        if (score > classic) classic = score;
+    } else if (mode == 1) {
+        if (score > enhanced) enhanced = score;
+    } else {
+        return;
+    }
+    write_high_scores(classic, enhanced);
+}
+
+void zombie_host_high_score_reset(int mode)
+{
+    int classic;
+    int enhanced;
+    read_high_scores(&classic, &enhanced);
+    if (mode == 0) classic = 0;
+    else if (mode == 1) enhanced = 0;
+    else return;
+    write_high_scores(classic, enhanced);
 }
 
 void zombie_host_set_volumes(int sound, int music, int global)
@@ -660,9 +733,9 @@ void zombie_host_hud(int score, int life, int level, int night, int count,
 
 void zombie_host_launcher(int selected)
 {
-    static const char *labels[5] = {
+    static const char *labels[6] = {
         "PLAY CLASSIC GAME", "PLAY ENHANCED GAME", "SETTINGS",
-        "HOW TO PLAY", "EXIT GAME"
+        "HIGH SCORES", "HOW TO PLAY", "EXIT GAME"
     };
     int i;
     zombie_host_background(1);
@@ -671,13 +744,35 @@ void zombie_host_launcher(int selected)
     draw_image(ASSET_ICON, 0, 0, 48, 48, 116, 68, 0);
     draw_text(190, 73, "ZOMBIE ATTACK", 2);
     draw_text(204, 105, "MAIN MENU", 2);
-    for (i = 0; i < 5; i++) {
-        int y = 145 + i * 45;
+    for (i = 0; i < 6; i++) {
+        int y = 130 + i * 38;
         if (i == selected) fill_rect(155, y - 5, 330, 31, 0x4208);
         draw_text(175, y, labels[i], 2);
     }
-    draw_text(176, 390, "A SELECT   B BACK", 2);
-    draw_text(170, 410, "SELECT START EXIT", 2);
+    draw_text(176, 365, "A SELECT   B BACK", 2);
+    draw_text(170, 400, "SELECT START EXIT", 2);
+}
+
+void zombie_host_high_score_menu(int selected, int classic, int enhanced)
+{
+    static const char *labels[5] = {
+        "CLASSIC BEST SCORE", "RESET CLASSIC SCORE", "ENHANCED BEST SCORE",
+        "RESET ENHANCED SCORE", "BACK"
+    };
+    int i;
+    zombie_host_background(1);
+    fill_rect(96, 55, 448, 370, 0x2104);
+    fill_rect(101, 60, 438, 360, 0x51e0);
+    draw_text(254, 92, "HIGH SCORES", 2);
+    for (i = 0; i < 5; i++) {
+        int y = 135 + i * 48;
+        if (i == selected) fill_rect(135, y - 5, 365, 31, 0x4208);
+        draw_text(150, y, labels[i], 2);
+        if (i == 0) draw_number_scaled(430, y - 1, classic, 2);
+        else if (i == 2) draw_number_scaled(430, y - 1, enhanced, 2);
+    }
+    draw_text(174, 370, "A SELECT   B BACK", 2);
+    draw_text(184, 398, "START ALSO BACK", 1);
 }
 
 void zombie_host_settings_menu(int selected, int sound, int music, int global,
@@ -1031,9 +1126,10 @@ void zombie_host_pause(int unused)
 
 void zombie_host_game_over(int score)
 {
-    fill_rect(160, 190, 320, 90, 0x0000);
-    draw_text(230, 210, "GAME OVER", 2);
-    draw_text(220, 245, "SCORE", 2); draw_number_scaled(280, 241, score, 2);
+    fill_rect(150, 175, 340, 140, 0x0000);
+    draw_text(266, 195, "GAME OVER", 2);
+    draw_text(290, 230, "SCORE", 2);
+    draw_number_centered(320, 262, score, 2);
 }
 
 void zombie_host_present(int unused)

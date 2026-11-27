@@ -37,6 +37,10 @@ import func zombie_host_present (int)
 import func zombie_host_sound (int)
 import func zombie_host_audio_pump (int)
 import func zombie_host_launcher (int)
+import func zombie_host_high_score_menu (int, int, int)
+import func zombie_host_high_score_load (int): dword
+import func zombie_host_high_score_save (int, int)
+import func zombie_host_high_score_reset (int)
 import func zombie_host_settings_menu (int, int, int, int, int)
 import func zombie_host_help (int)
 import func zombie_host_dialogue (int, int, int)
@@ -57,7 +61,8 @@ equ emergency = 3072:d
 equ screen launcher = 0
 equ screen game = 1
 equ screen settings = 2
-equ screen help = 3
+equ screen high scores = 3
+equ screen help = 4
 
 equ max zombies = 32
 equ max bullets = 64
@@ -137,10 +142,14 @@ def last keys: dword
 def screen: int
 def menu selection: int
 def settings selection: int
+def high score selection: int
 def sound volume: int
 def music volume: int
 def global volume: int
 def dialogue enabled: int
+def high score classic: int
+def high score enhanced: int
+def high score recorded: int
 def enhanced mode: int
 def quit requested: int
 def dialogue id: int
@@ -220,6 +229,7 @@ def wolf hit time: int
 def wolf attack time: int
 def wolf search time: int
 def wolf life: int
+def wolf slow time: int
 def wolf vulnerable: int
 def wolf leaving: int
 
@@ -772,11 +782,13 @@ func reset game
 	wolf active = 0
 	wolf time = 0
 	wolf hit time = 0
+	wolf slow time = 0
 	wolf attack time = 0
 	wolf search time = 0
 	wolf life = 0
 	wolf vulnerable = 0
 	wolf leaving = 0
+	high score recorded = 0
 	i = 0
 	while i < max rescue pigs
 		pig state[i] = 0
@@ -1476,6 +1488,7 @@ func spawn wolf
 	wolf frame time = 0
 	wolf time = max wolf time
 	wolf hit time = 0
+	wolf slow time = 0
 	wolf attack time = 0
 	wolf search time = 2500
 	wolf life = 140
@@ -1794,6 +1807,7 @@ func update wolf (elapsed: int)
 	def distance: int
 	def best distance: int
 	def step: int
+	def move speed: int
 	if wolf active == 0
 		return
 	end
@@ -1811,6 +1825,15 @@ func update wolf (elapsed: int)
 		if wolf attack time < 0
 			wolf attack time = 0
 		end
+	end
+	if wolf slow time > 0
+		wolf slow time -= elapsed
+		if wolf slow time < 0
+			wolf slow time = 0
+		end
+		move speed = 55
+	else
+		move speed = 110
 	end
 	wolf time -= elapsed
 	if wolf time <= 1500
@@ -1874,7 +1897,7 @@ func update wolf (elapsed: int)
 		end
 		++i
 	end
-	step = 110 * elapsed / 1000
+	step = move speed * elapsed / 1000
 	if step < 1
 		step = 1
 	end
@@ -2043,20 +2066,26 @@ func update bullets (elapsed: int)
 							zombie_host_sound (1)
 						end
 					end
-				if bullet active[i] <> 0 && wolf active <> 0 && wolf vulnerable <> 0
+				if bullet active[i] <> 0 && wolf active <> 0
 					dx = absolute (wolf x - bullet x[i])
 					dy = absolute (wolf y - bullet y[i])
 					if dx < 34 && dy < 42
-						inflicted = bullet damage[i]
-						wolf life -= inflicted
-						wolf hit time = 100
 						bullet active[i] = 0
-						if wolf life <= 0
-							wolf active = 0
-							wolf summoned = 1
-							say dialogue (28 + random number (3))
-							player score += 100
-							zombie_host_sound (1)
+						wolf hit time = 100
+						if wolf vulnerable <> 0
+							inflicted = bullet damage[i]
+							wolf life -= inflicted
+							if wolf life <= 0
+								wolf active = 0
+								wolf summoned = 1
+								say dialogue (28 + random number (3))
+								player score += 100
+								zombie_host_sound (1)
+							end
+						else
+							// Gunfire cannot damage the wolf until all piglets
+							// are safe, but it can still push him back.
+							wolf slow time = 650
 						end
 					end
 				end
@@ -2656,6 +2685,35 @@ func save settings
 		dialogue enabled)
 end
 
+func load high scores
+	high score classic = (zombie_host_high_score_load (0)):int
+	high score enhanced = (zombie_host_high_score_load (1)):int
+	if high score classic < 0
+		high score classic = 0
+	end
+	if high score enhanced < 0
+		high score enhanced = 0
+	end
+end
+
+func update high score
+	if player game over == 0 || high score recorded <> 0
+		return
+	end
+	if enhanced mode == 0
+		if player score > high score classic
+			high score classic = player score
+			zombie_host_high_score_save (0, player score)
+		end
+	else
+		if player score > high score enhanced
+			high score enhanced = player score
+			zombie_host_high_score_save (1, player score)
+		end
+	end
+	high score recorded = 1
+end
+
 func start game (mode: int)
 	enhanced mode = mode
 	reset game
@@ -2666,12 +2724,12 @@ func update launcher (keys: dword)
 	if (keys & key up) <> 0 && (last keys & key up) == 0
 		menu selection -= 1
 		if menu selection < 0
-			menu selection = 4
+			menu selection = 5
 		end
 	end
 	if (keys & key down) <> 0 && (last keys & key down) == 0
 		menu selection += 1
-		if menu selection > 4
+		if menu selection > 5
 			menu selection = 0
 		end
 	end
@@ -2684,9 +2742,45 @@ func update launcher (keys: dword)
 			settings selection = 0
 			screen = screen settings
 		elsif menu selection == 3
+			high score selection = 0
+			screen = screen high scores
+		elsif menu selection == 4
 			screen = screen help
 		else
 			quit requested = 1
+		end
+	end
+end
+
+func update high scores (keys: dword)
+	if ((keys & key b) <> 0 && (last keys & key b) == 0) ||
+	   ((keys & key start) <> 0 && (last keys & key start) == 0)
+		screen = screen launcher
+		return
+	end
+	if (keys & key up) <> 0 && (last keys & key up) == 0
+		high score selection -= 1
+		if high score selection < 0
+			high score selection = 4
+		end
+	end
+	if (keys & key down) <> 0 && (last keys & key down) == 0
+		high score selection += 1
+		if high score selection > 4
+			high score selection = 0
+		end
+	end
+	if (keys & key a) <> 0 && (last keys & key a) == 0
+		if high score selection == 1
+			high score classic = 0
+			zombie_host_high_score_reset (0)
+			zombie_host_sound (3)
+		elsif high score selection == 3
+			high score enhanced = 0
+			zombie_host_high_score_reset (1)
+			zombie_host_sound (3)
+		elsif high score selection == 4
+			screen = screen launcher
 		end
 	end
 end
@@ -2767,9 +2861,11 @@ public [name="c"] func main (argc: int, argv: [] string)
 		return 1
 	end
 	load settings
+	load high scores
 	screen = screen launcher
 	menu selection = 0
 	settings selection = 0
+	high score selection = 0
 	enhanced mode = 1
 	quit requested = 0
 	last keys = 0:d
@@ -2795,11 +2891,16 @@ public [name="c"] func main (argc: int, argv: [] string)
 				update settings (keys)
 				zombie_host_settings_menu (settings selection, sound volume,
 					music volume, global volume, dialogue enabled)
+			elsif screen == screen high scores
+				update high scores (keys)
+				zombie_host_high_score_menu (high score selection, high score classic,
+					high score enhanced)
 			elsif screen == screen help
 				update help (keys)
 				zombie_host_help (0)
 			else
 			if player game over <> 0
+				update high score
 				if (keys & key start) <> 0 && (last keys & key start) == 0
 					reset game
 				end

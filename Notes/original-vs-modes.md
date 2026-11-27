@@ -179,6 +179,18 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Disabled speech suppresses Enhanced dialogue bubbles and scripted ambient
   speech without changing combat, enemy, pickup, or rescue behavior.
 
+### 2026-11-27 — High scores and wolf pressure
+
+- Added separate persisted Classic and Enhanced best scores in
+  `data/highscores.cfg`.
+- Added a launcher High Scores page with independent reset entries directly
+  below each mode's score.
+- Corrected the death overlay so the score label and number have separate,
+  centered lines regardless of score length.
+- While the Big Bad Wolf is invulnerable, aligned gunfire now consumes the
+  bullet and slows him briefly without reducing his health. Once all piglets
+  are safe, gunfire resumes normal damage behavior.
+
 ### 2026-11-27 — Numeric font glyph correction
 
 - Replaced malformed number glyphs and corrected the affected letter glyph

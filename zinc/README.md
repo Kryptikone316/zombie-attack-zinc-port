@@ -15,12 +15,16 @@ Controls:
 - Select + Start: emergency exit to the frontend
 
 The executable opens at a Zinc-built main menu with Play Classic Game, Play
-Enhanced Game, Settings, How To Play, and Exit Game. Settings are stored as
-`data/settings.cfg` so volume and Commando Speech choices survive a return to
-the frontend. Commando Speech defaults on, and can be toggled with Left/Right
-in Settings; it only affects Enhanced-mode dialogue bubbles. The current host
-has generated sound effects but no music stream, so the music value is retained
-for future audio work.
+Enhanced Game, Settings, High Scores, How To Play, and Exit Game. Settings are
+stored as `data/settings.cfg` so volume and Commando Speech choices survive a
+return to the frontend. Commando Speech defaults on, and can be toggled with
+Left/Right in Settings; it only affects Enhanced-mode dialogue bubbles. The
+current host has generated sound effects but no music stream, so the music
+value is retained for future audio work.
+
+Classic and Enhanced best scores are stored independently in
+`data/highscores.cfg`. The High Scores page includes a separate reset entry
+under each mode's score.
 
 Classic mode keeps the original three humanoid enemy classes, straight
 unlimited shots, and one-time upgrade limits. Enhanced mode enables the added
@@ -83,7 +87,8 @@ After the rescue event begins, three piglets flee zombies and the Big Bad Wolf
 strongly while lightly avoiding the commando. Carry them to the barn one at a
 time; the HUD tracks the saved count. The wolf arrives after a short search
 delay, hunts the piglets, and becomes vulnerable to gunfire only after all
-three are safely inside.
+three are safely inside. Before then, gunfire cannot hurt him but does slow his
+movement briefly, giving the commando room to reach the barn.
 
 Cows occasionally leave visible cow-pie land-mines behind them. A pie lasts
 10 seconds, deals 2 damage on contact, and is subject to an eight-hazard cap.
