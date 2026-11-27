@@ -192,3 +192,10 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Enlarged launcher, settings, upgrade, pause, and game-over menu text while
   retaining panel bounds and readable contrast.
 - Kept the How To Play page on its larger, reflowed layout.
+
+### 2026-11-27 — Two-column control guide
+
+- Reworked How To Play into a two-column control/action table for D-Pad, A, B,
+  Start, and Select+Start.
+- Added a dedicated plus-sign glyph so the emergency-exit control is rendered
+  correctly by the embedded Zinc host font.

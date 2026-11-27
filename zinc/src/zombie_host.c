@@ -232,7 +232,7 @@ static void darken(void)
     }
 }
 
-static const char *const font_data[36] = {
+static const char *const font_data[37] = {
     "01110100011000111111100011000110001", "11110100011000111110100011000111110",
     "01111100001000010000100001000001111", "11110100011000110001100011000111110",
     "11111100001000011110100001000011111", "11111100001000011110100001000010000",
@@ -250,13 +250,15 @@ static const char *const font_data[36] = {
     "01110100010000100010001000100011111", "11110000010000101110000010000111110",
     "00010001100101010010111110001000010", "11111100001000011110000010000111110",
     "01110100001000011110100011000101110", "11111000010001000100010000100001000",
-    "01110100011000101110100011000101110", "01110100011000101111000010000101110"
+    "01110100011000101110100011000101110", "01110100011000101111000010000101110",
+    "00000001000010011111001000010000000"
 };
 
 static int font_index(char c)
 {
     if (c >= 'A' && c <= 'Z') return c - 'A';
     if (c >= '0' && c <= '9') return 26 + c - '0';
+    if (c == '+') return 36;
     return 35;
 }
 
@@ -667,15 +669,18 @@ void zombie_host_help(int unused)
     fill_rect(78, 48, 484, 385, 0x2104);
     fill_rect(83, 53, 474, 375, 0x51e0);
     draw_text(248, 75, "HOW TO PLAY", 2);
-    draw_text(260, 115, "D PAD MOVE", 2);
-    draw_text(218, 140, "A FIRE OR SELECT", 2);
-    draw_text(230, 165, "B CANCEL MENUS", 2);
-    draw_text(224, 190, "START PAUSE GAME", 2);
-    draw_text(218, 215, "SELECT START EXIT", 2);
-    draw_text(170, 260, "CARRY PIGLETS TO THE BARN", 2);
-    draw_text(128, 285, "SAVE ALL THREE TO HUNT THE WOLF", 2);
-    draw_text(164, 330, "CLASSIC AND ENHANCED MODES", 2);
-    draw_text(194, 355, "USE THE SETTINGS MENU", 2);
+    draw_text(130, 120, "D PAD", 2);
+    draw_text(330, 120, "MOVE", 2);
+    draw_text(130, 165, "A", 2);
+    draw_text(330, 165, "FIRE OR SELECT", 2);
+    draw_text(130, 210, "B", 2);
+    draw_text(330, 210, "CANCEL MENUS", 2);
+    draw_text(130, 255, "START", 2);
+    draw_text(330, 255, "PAUSE GAME", 2);
+    draw_text(110, 300, "SELECT + START", 2);
+    draw_text(330, 300, "EXIT TO FRONTEND", 2);
+    draw_text(130, 350, "CARRY PIGLETS TO THE BARN", 1);
+    draw_text(130, 365, "SAVE ALL THREE TO HUNT THE WOLF", 1);
     draw_text(254, 395, "A OR B BACK", 2);
 }
 
