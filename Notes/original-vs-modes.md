@@ -235,3 +235,5 @@ current/max ranks without adding a platform-sensitive ABI structure.
   summoned the Big Bad Wolf.
 - Added a rare chicken-kill punchline: `WHY DID THE CHICKEN CROSS THE FARM? /
   WE'LL NEVER KNOW NOW THAT YOU'RE DEAD!`.
+- Added a rare goat-kill punchline: `TOTES MA'GOATS. / YOU'RE GOING TO MAKE A
+  LOVELY TOTE!`.
