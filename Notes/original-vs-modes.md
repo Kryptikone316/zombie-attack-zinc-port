@@ -308,6 +308,9 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Corrected the generated BMPs to use uncompressed 8-bit palette data. The
   first generated sheets were RLE8-compressed, which the host loader rejects
   during startup even though the MIPS executable itself compiles successfully.
+- Corrected zombie rendering to match the refreshed right-facing source art:
+  left-side spawns now visibly face right and right-side spawns face left for
+  human zombies, animals, and crows.
 
 ### 2026-11-27 — Pig delivery and enhanced ammunition balance
 

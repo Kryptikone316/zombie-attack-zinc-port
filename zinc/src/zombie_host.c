@@ -548,14 +548,18 @@ void zombie_host_zombie(int type, int mutation, int x, int y, int frame,
             sx = (frame & 1) * 32; sy = 0;
         }
         if (type != 10) { sx = 0; sy = 0; }
+        // Refreshed animal sheets face right in their source art. Direction
+        // 1 is right-facing in Zinc, so only the left-facing state flips.
         draw_image_tinted(asset, sx, sy, sw, sh,
-                          x - sw / 2, y - sh, direction == 1, tint);
+                          x - sw / 2, y - sh, direction == 0, tint);
     } else {
         type %= 3;
         if (dying) { sx = (frame % 3) * 84; sy = type * 146 + 73; sw = 84; }
         else { sx = (frame & 1) * 48; sy = type * 146; sw = 48; }
+        // The refreshed human zombie sheet follows the same right-facing
+        // source convention as the animals and commando.
         draw_image_tinted(asset, sx, sy, sw, sh,
-                          x - sw / 2, y - sh, direction == 1, tint);
+                          x - sw / 2, y - sh, direction == 0, tint);
     }
     if (hit) fill_rect(x - 3, y - 46, 6, 6, 0xf800);
 }
