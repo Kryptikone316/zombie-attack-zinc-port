@@ -53,6 +53,11 @@ A neutral squirrel periodically emerges beside the tree hole. It throws small
 tree. The squirrel cannot be targeted or killed; its nuts are the only active
 hazard.
 
+The Enhanced commando can occasionally speak through a two-line comic-style
+dialogue bubble. Lines are throttled so combat remains readable and varied
+comments are tied to enemy types, piglet rescue, wolf encounters, crows,
+unicorns, support upgrades, the Beagle Buddy, and pickups.
+
 Enhanced `BEAGLE BUDDY` has five ranks. The beagle fights nearby enemies,
 shows a health bar, retreats to the broken-fence position when exhausted, and
 returns after a rank-scaled recovery period.

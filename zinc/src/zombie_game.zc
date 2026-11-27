@@ -37,6 +37,7 @@ import func zombie_host_audio_pump (int)
 import func zombie_host_launcher (int)
 import func zombie_host_settings_menu (int, int, int, int)
 import func zombie_host_help (int)
+import func zombie_host_dialogue (int, int, int)
 import func zombie_host_settings_load (int): dword
 import func zombie_host_settings_save (int, int, int)
 import func zombie_host_set_volumes (int, int, int)
@@ -138,6 +139,9 @@ def music volume: int
 def global volume: int
 def enhanced mode: int
 def quit requested: int
+def dialogue id: int
+def dialogue time: int
+def crow spotted: int
 
 def zombie active: [max zombies] int
 def zombie type: [max zombies] int
@@ -257,6 +261,72 @@ func random number (limit: int): int
 	return ((random state >> 16) % limit):int
 end
 
+func say dialogue (id: int)
+	if enhanced mode == 0 || dialogue time > 0
+		return
+	end
+	dialogue id = id
+	dialogue time = 2800
+end
+
+func update dialogue (elapsed: int)
+	if dialogue time > 0
+		dialogue time -= elapsed
+		if dialogue time <= 0
+			dialogue time = 0
+			dialogue id = 0
+		end
+	end
+end
+
+func say enemy dialogue (enemy type: int)
+	if enhanced mode == 0
+		return
+	end
+	// Humanoid kills speak less often; the unusual farm enemies get the
+	// occasional sharper punchline without turning every wave into chatter.
+	if enemy type < 3 && random number (3) <> 0
+		return
+	end
+	if enemy type == 0
+		say dialogue (1 + random number (2))
+	elsif enemy type == 1
+		say dialogue (3 + random number (2))
+	elsif enemy type == 2
+		say dialogue (5 + random number (2))
+	elsif enemy type == 3
+		say dialogue (7 + random number (2))
+	elsif enemy type == 4
+		say dialogue (9 + random number (2))
+	elsif enemy type == 5
+		say dialogue (11 + random number (3))
+	elsif enemy type == 6
+		say dialogue (14 + random number (2))
+	elsif enemy type == 7
+		say dialogue (16 + random number (2))
+	elsif enemy type == 8
+		say dialogue (18 + random number (2))
+	elsif enemy type == 9
+		say dialogue (20 + random number (3))
+	else
+		say dialogue (23 + random number (2))
+	end
+end
+
+func say pickup dialogue (pickup kind: int)
+	if pickup kind == pickup ammo
+		say dialogue (43 + random number (2))
+	elsif pickup kind == pickup damage
+		say dialogue (45 + random number (2))
+	elsif pickup kind == pickup health
+		say dialogue (47 + random number (2))
+	elsif pickup kind == pickup speed
+		say dialogue (49 + random number (2))
+	else
+		say dialogue (51 + random number (2))
+	end
+end
+
 func reset game
 	def i = 0
 	player x = 320
@@ -334,6 +404,9 @@ func reset game
 	dog attack time = 0
 	dog hit time = 0
 	random state = 305419896:d
+	dialogue id = 0
+	dialogue time = 0
+	crow spotted = 0
 	upgrade menu = 0
 	upgrade selection = 0
 	upgrade pending = 0
@@ -430,6 +503,12 @@ func spawn zombie
 		zombie type[i] = 9
 	else
 		zombie type[i] = 10
+	end
+	if enhanced mode <> 0 && zombie type[i] == 10 && crow spotted == 0
+		crow spotted = 1
+		say dialogue (23)
+	elsif enhanced mode <> 0 && zombie type[i] == 9
+		say dialogue (20 + random number (3))
 	end
 	zombie mutation[i] = 0
 	zombie pig interest[i] = 0
@@ -677,20 +756,24 @@ func update pickups (elapsed: int)
 							end
 							pickup active[i] = 0
 							zombie_host_sound (3)
+							say pickup dialogue (pickup type[i])
 						end
 					elsif pickup type[i] == pickup damage
 						player damage boost = 5
 						player damage boost time = 12000
 						pickup active[i] = 0
 						zombie_host_sound (3)
+						say pickup dialogue (pickup type[i])
 					elsif pickup type[i] == pickup speed
 						player speed boost time = 12000
 						pickup active[i] = 0
 						zombie_host_sound (3)
+						say pickup dialogue (pickup type[i])
 					elsif pickup type[i] == pickup rapid
 						player rapid time = 12000
 						pickup active[i] = 0
 						zombie_host_sound (3)
+						say pickup dialogue (pickup type[i])
 					else
 						if player ammo < player ammo max
 							player ammo += 30
@@ -699,6 +782,7 @@ func update pickups (elapsed: int)
 							end
 							pickup active[i] = 0
 							zombie_host_sound (3)
+							say pickup dialogue (pickup type[i])
 						end
 					end
 				end
@@ -840,6 +924,7 @@ func update squirrel (elapsed: int)
 		squirrel cooldown -= elapsed
 		if squirrel cooldown <= 0
 			squirrel active = 1
+			say dialogue (53 + random number (2))
 			squirrel x = squirrel hole x
 			squirrel y = squirrel hole y
 			squirrel direction = random number (2)
@@ -939,6 +1024,7 @@ func update rescue pigs (elapsed: int)
 					pig state[i] = pig carried
 					pig carried index = i
 					zombie_host_sound (3)
+					say dialogue (31 + random number (3))
 				end
 			end
 			if pig state[i] == pig field
@@ -1009,6 +1095,11 @@ func update rescue pigs (elapsed: int)
 				player score += 50
 				zombie_host_sound (3)
 				if pig saved count >= max rescue pigs
+					say dialogue (35)
+				else
+					say dialogue (34)
+				end
+				if pig saved count >= max rescue pigs
 					wolf vulnerable = 1
 				end
 			end
@@ -1032,6 +1123,7 @@ func spawn wolf
 		return
 	end
 	wolf active = 1
+	say dialogue (25 + random number (3))
 	if (random number (2)) == 0
 		wolf x = -32
 		wolf direction = 1
@@ -1093,6 +1185,7 @@ end
 
 func activate dog
 	dog state = dog active
+	say dialogue (41 + random number (2))
 	if player direction == 1
 		dog x = player x - 34
 		dog direction = 0
@@ -1218,6 +1311,7 @@ func update dog (elapsed: int)
 			zombie life[target] -= 8 + dog rank * 3
 			zombie_host_sound (2)
 			if zombie life[target] <= 0
+				say enemy dialogue (zombie type[target])
 				zombie active[target] = 0
 				player score += 5
 				zombie_host_sound (1)
@@ -1252,6 +1346,7 @@ func update farm helpers (elapsed: int)
 						zombie life[i] -= 8 + mower rank * 4
 						zombie hit time[i] = 300
 						if zombie life[i] <= 0
+							say enemy dialogue (zombie type[i])
 							zombie active[i] = 0
 							player score += 8
 						end
@@ -1273,6 +1368,7 @@ func update farm helpers (elapsed: int)
 				mower x = 70
 				mower y = 445
 				mower direction = 1
+				say dialogue (38 + random number (3))
 			end
 		end
 	end
@@ -1294,6 +1390,7 @@ func update farm helpers (elapsed: int)
 							zombie life[i] -= 8 + chipper rank * 4
 							zombie hit time[i] = 180
 							if zombie life[i] <= 0
+								say enemy dialogue (zombie type[i])
 								zombie active[i] = 0
 								player score += 8
 							end
@@ -1311,6 +1408,7 @@ func update farm helpers (elapsed: int)
 			if chipper cooldown <= 0
 				chipper time = 4000 + chipper rank * 700
 				chipper shot time = 0
+				say dialogue (36 + random number (2))
 			end
 		end
 	end
@@ -1593,6 +1691,7 @@ func update bullets (elapsed: int)
 						zombie hit time[target] = 100
 						bullet active[i] = 0
 						if zombie life[target] <= 0
+							say enemy dialogue (zombie type[target])
 							zombie active[target] = 0
 							player score += 10
 							zombie_host_sound (1)
@@ -1609,6 +1708,7 @@ func update bullets (elapsed: int)
 						if wolf life <= 0
 							wolf active = 0
 							wolf summoned = 1
+							say dialogue (28 + random number (3))
 							player score += 100
 							zombie_host_sound (1)
 						end
@@ -2154,6 +2254,9 @@ func draw game
 	end
 	zombie_host_player_status (player x, player y, status damage,
 		status poison, status cripple, status speed, status rapid)
+	if dialogue time > 0
+		zombie_host_dialogue (dialogue id, player x, player y)
+	end
 	i = 0
 	while i < max bullets
 		if bullet active[i] <> 0
@@ -2344,6 +2447,7 @@ public [name="c"] func main (argc: int, argv: [] string)
 				end
 				else
 					update player (keys, elapsed)
+					update dialogue (elapsed)
 					update bullets (elapsed)
 					if enhanced mode <> 0 && pig event started == 0
 						pig event time += elapsed

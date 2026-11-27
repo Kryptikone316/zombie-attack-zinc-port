@@ -232,7 +232,7 @@ static void darken(void)
     }
 }
 
-static const char *const font_data[38] = {
+static const char *const font_data[39] = {
     "01110100011000111111100011000110001", "11110100011000111110100011000111110",
     "01111100001000010000100001000001111", "11110100011000110001100011000111110",
     "11111100001000011110100001000011111", "11111100001000011110100001000010000",
@@ -251,7 +251,8 @@ static const char *const font_data[38] = {
     "00010001100101010010111110001000010", "11111100001000011110000010000111110",
     "01110100001000011110100011000101110", "11111000010001000100010000100001000",
     "01110100011000101110100011000101110", "01110100011000101111000010000101110",
-    "00000001000010011111001000010000000", "00000000000000011111000000000000000"
+    "00000001000010011111001000010000000", "00000000000000011111000000000000000",
+    "00100001000010000100001000000000100"
 };
 
 static int font_index(char c)
@@ -260,10 +261,12 @@ static int font_index(char c)
     if (c >= '0' && c <= '9') return 26 + c - '0';
     if (c == '+') return 36;
     if (c == '-') return 37;
+    if (c == '!') return 38;
     return 35;
 }
 
-static void draw_text(int x, int y, const char *text, int scale)
+static void draw_text_color(int x, int y, const char *text, int scale,
+                            unsigned short color)
 {
     int i, row, col;
     for (i = 0; text[i]; i++) {
@@ -272,11 +275,16 @@ static void draw_text(int x, int y, const char *text, int scale)
         for (row = 0; row < 7; row++) {
             for (col = 0; col < 5; col++) {
                 if (font_data[index][row * 5 + col] == '1')
-                    fill_rect(x + col * scale, y + row * scale, scale, scale, 0xffff);
+                    fill_rect(x + col * scale, y + row * scale, scale, scale, color);
             }
         }
         x += 6 * scale;
     }
+}
+
+static void draw_text(int x, int y, const char *text, int scale)
+{
+    draw_text_color(x, y, text, scale, 0xffff);
 }
 
 static void draw_number(int x, int y, int value)
@@ -683,6 +691,96 @@ void zombie_host_help(int unused)
     draw_text(130, 350, "CARRY PIGLETS TO THE BARN", 1);
     draw_text(130, 365, "SAVE ALL THREE TO HUNT THE WOLF", 1);
     draw_text(254, 395, "A OR B BACK", 2);
+}
+
+typedef struct {
+    const char *line_one;
+    const char *line_two;
+} dialogue_t;
+
+static const dialogue_t dialogue_lines[55] = {
+    { "", "" },
+    { "WALKER DOWN!", "NEXT TARGET" },
+    { "BACK TO THE GRAVE", "YOU GO" },
+    { "FERAL SPEED", "ZERO SURVIVAL" },
+    { "FAST AND FURIOUS", "NOT FAST ENOUGH" },
+    { "HEAVY METAL", "SCRAPPED" },
+    { "TANKS FOR NOTHING", "YOUR ARMOR IS GONE" },
+    { "FRIED CHICKEN", "COMING RIGHT UP" },
+    { "THAT CHICKEN", "CAME HOME TO DIE" },
+    { "PIG DOWN", "DINNER IS SERVED" },
+    { "BACON MEETS BULLETS", "BREAKFAST IS READY" },
+    { "BAAAAAD TIME!", "YOU ARE DEAD" },
+    { "WOOL BE SEEING YOU", "NOT" },
+    { "SHEAR DOMINATION", "BYE BYE SHEEP" },
+    { "GOAT TO ADMIT", "THAT HURT" },
+    { "YOU BLEAT", "THE WRONG COMMANDO" },
+    { "MOOOVE ALONG", "NOTHING TO SEE" },
+    { "THAT COW", "WAS A BULLSEYE" },
+    { "LLAMA TELL YOU", "THAT WAS UGLY" },
+    { "BAD HAIR DAY", "WORSE ENDING" },
+    { "A UNICORN!", "IN A ZOMBIE FARM" },
+    { "RAINBOWS AND RAGE", "WHAT A DAY" },
+    { "THAT HORN", "NEEDS TO GO" },
+    { "CROW CONTROL", "ENGAGED" },
+    { "DARK WINGS", "BAD IDEA" },
+    { "BIG BAD WOLF!", "WRONG FARM" },
+    { "RED RIDING HOOD", "LEFT THE BUILDING" },
+    { "FUR FLYING", "INCOMING" },
+    { "BIG BAD MISS", "WOLF DOWN" },
+    { "ONE DEAD WOLF", "STAY DOWN" },
+    { "GOODBYE WOLF", "RUN ALONG NOW" },
+    { "EASY LITTLE PIGGY", "TO THE BARN" },
+    { "HANG ON", "BACON EXPRESS" },
+    { "NO WOLF", "GETS YOU TODAY" },
+    { "SAFE IN THE BARN", "KEEP MOVING" },
+    { "PIGGY SECURED", "NICE WORK COMMANDO" },
+    { "LET THE CHIPS FALL", "CROWS BEWARE" },
+    { "WOOD CHIPS", "ZOMBIE SPLINTERS" },
+    { "GROOVY!", "DEADITE LAWN CARE" },
+    { "ASH WOULD APPROVE", "MOW THEM DOWN" },
+    { "EVIL LAWN", "CLEANUP COMPLETE" },
+    { "GET HIM LASSIE!", "ERRR BINGO" },
+    { "WHATEVER YOUR NAME", "SIC EM BUDDY" },
+    { "MORE BULLETS!", "MORE PROBLEMS" },
+    { "AMMO ACQUIRED", "KEEP FIRING" },
+    { "TURN UP THE HEAT", "ZOMBIES MELT" },
+    { "DAMAGE BOOST", "NOW WE TALK" },
+    { "FREE HEALTH", "THANKS FARM" },
+    { "PATCHED UP", "BACK TO WORK" },
+    { "GOTTA GO FAST", "ZOMBIES HATE IT" },
+    { "SPEED BOOST", "CATCH ME NOW" },
+    { "RAPID FIRE", "LOUD AND PROUD" },
+    { "MORE LEAD", "LESS DEAD" },
+    { "SQUIRREL SIGHTED", "BAD NUTS INCOMING" },
+    { "NUTS TO YOU", "KEEP YOUR HEAD DOWN" }
+};
+
+void zombie_host_dialogue(int id, int x, int y)
+{
+    int width;
+    int line_width;
+    int left;
+    int top;
+    if (id <= 0 || id >= (int)(sizeof(dialogue_lines) / sizeof(dialogue_lines[0])))
+        return;
+    line_width = (int)strlen(dialogue_lines[id].line_one);
+    width = (int)strlen(dialogue_lines[id].line_two);
+    if (width > line_width) line_width = width;
+    width = line_width * 6 + 20;
+    if (width < 150) width = 150;
+    if (width > 330) width = 330;
+    left = x - width / 2;
+    if (left < 5) left = 5;
+    if (left + width > GAME_W - 5) left = GAME_W - 5 - width;
+    top = y - 145;
+    if (top < 42) top = 42;
+    fill_rect(left, top, width, 38, 0x0000);
+    fill_rect(left + 2, top + 2, width - 4, 34, 0xffe0);
+    draw_text_color(left + 10, top + 7, dialogue_lines[id].line_one, 1, 0x0000);
+    draw_text_color(left + 10, top + 20, dialogue_lines[id].line_two, 1, 0x0000);
+    fill_rect(x - 5, top + 38, 10, 3, 0x0000);
+    fill_rect(x - 2, top + 41, 4, 3, 0x0000);
 }
 
 void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks,

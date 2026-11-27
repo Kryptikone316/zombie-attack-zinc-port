@@ -200,3 +200,14 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added a dedicated plus-sign glyph so the emergency-exit control is rendered
   correctly by the embedded Zinc host font.
 - Added a dedicated hyphen glyph and corrected the control label to `D-PAD`.
+
+### 2026-11-27 — Throttled Enhanced commando dialogue
+
+- Added two-line comic-style dialogue bubbles above the commando with dark
+  text on a pale speech panel and a small tail.
+- Added varied farm-pun, zombie-action, and 1980s-action-spoof lines for each
+  enemy family, piglet pickup/delivery, wolf sighting/defeat, crow and unicorn
+  sightings, support equipment, Beagle Buddy activation, pickups, and the
+  squirrel.
+- Added a 2.8-second speech duration and active-bubble suppression so lines
+  remain occasional rather than becoming combat spam.
