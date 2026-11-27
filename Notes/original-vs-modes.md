@@ -247,3 +247,5 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Stories are shown one bubble at a time, with a long cooldown and a separate
   anti-repeat mask so all twelve are used before any can recur. Ambient stories
   yield to enemy, event, pickup, and support-system dialogue.
+- Added rare generic combat quips for the humanoid zombie classes: `TAKE THAT!
+  / AND THAT!` and `EAT LEAD... / OR AT LEAST IT MIGHT BE LEAD`.
