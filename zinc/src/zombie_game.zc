@@ -9,6 +9,7 @@ import "base/types"
 public [name="c"]
 import func zombie_host_init (int): int
 import func zombie_host_deinit (int)
+import func zombie_host_set_mode (int): int
 import func zombie_host_keys (int): dword
 import func zombie_host_time_ms (int): dword
 import func zombie_host_sleep (int)
@@ -64,7 +65,9 @@ equ screen settings = 2
 equ screen high scores = 3
 equ screen help = 4
 
-equ max zombies = 32
+// The supplied game allocates room for 128 zombies. Keep that capacity in
+// Classic; Enhanced can use the same storage without changing its rules.
+equ max zombies = 128
 equ max bullets = 64
 equ max upgrades = 10
 equ max pickups = 6
@@ -102,6 +105,11 @@ def player direction: int
 def player frame: int
 def player frame time: int
 def player shoot time: int
+def player gun warm: int
+def player gun warm time: int
+def player gun overload time: int
+def player gun warm max: int
+def player gun latched: int
 def player life: int
 def player score: int
 def player level: int
@@ -197,12 +205,19 @@ def zombie hit time: [max zombies] int
 def zombie drop time: [max zombies] int
 def zombie flight time: [max zombies] int
 def zombie pig interest: [max zombies] int
+def zombie classic move x: [max zombies] int
+def zombie classic move y: [max zombies] int
+def zombie classic move x time: [max zombies] int
+def zombie classic move y time: [max zombies] int
+def zombie classic range y: [max zombies] int
+def zombie classic range attack: [max zombies] int
 
 def bullet active: [max bullets] int
 def bullet x: [max bullets] int
 def bullet y: [max bullets] int
 def bullet direction: [max bullets] int
 def bullet damage: [max bullets] int
+def bullet move time: [max bullets] int
 
 def pickup active: [max pickups] int
 def pickup type: [max pickups] int
@@ -651,6 +666,10 @@ func reset game
 	player frame = 0
 	player frame time = 0
 	player shoot time = 0
+	player gun warm = 0
+	player gun warm time = 0
+	player gun overload time = 0
+	player gun latched = 0
 	player life = 20
 	player score = 0
 	player level = 1
@@ -659,8 +678,18 @@ func reset game
 	player damage = 10
 	player shot delay = 90
 	player life max = 20
-	player ammo max = 180
-	player ammo = player ammo max
+	if enhanced mode == 0
+		// These are the original player's values. The source has no ammo
+		// counter; Classic therefore uses an unlimited warmed rifle.
+		player shot delay = 80
+		player ammo max = 0
+		player ammo = 0
+		player gun warm max = 16
+	else
+		player ammo max = 180
+		player ammo = player ammo max
+		player gun warm max = 0
+	end
 	player damage boost = 0
 	player damage boost time = 0
 	player speed boost time = 0
@@ -756,12 +785,15 @@ func reset game
 	last keys = 0:d
 	while i < max zombies
 		zombie active[i] = 0
+		zombie classic move x time[i] = 0
+		zombie classic move y time[i] = 0
 		++i
 	end
 	i = 0
 	while i < max bullets
 		bullet active[i] = 0
 		bullet damage[i] = 0
+		bullet move time[i] = 0
 		++i
 	end
 	i = 0
@@ -802,6 +834,7 @@ end
 
 func spawn zombie
 	def i = 0
+	def spawn y: int
 	while i < max zombies && zombie active[i] <> 0
 		++i
 	end
@@ -809,6 +842,40 @@ func spawn zombie
 		return
 	end
 	zombie active[i] = 1
+	if enhanced mode == 0
+		spawn y = random number (305)
+		// Direct translation of game_drop_zombie() and
+		// zombies_factory_init_zombie(): three original humanoid classes,
+		// 20 life, randomized per-axis movement timing, and off-screen entry.
+		zombie type[i] = random number (3)
+		zombie mutation[i] = 0
+		zombie pig interest[i] = 0
+		zombie life[i] = 20
+		zombie speed[i] = 0
+		zombie armor[i] = 0
+		zombie contact damage[i] = 0
+		zombie classic move x[i] = 65 + random number (20)
+		zombie classic move y[i] = 65 + random number (20) + 25
+		zombie classic move x time[i] = 0
+		zombie classic move y time[i] = 0
+		zombie classic range y[i] = random number (320)
+		zombie classic range attack[i] = 2 + random number (5)
+		if spawn y < 153
+			zombie x[i] = 20 - 40
+			zombie direction[i] = 1
+		else
+			spawn y -= 153
+			zombie x[i] = 620 + 40
+			zombie direction[i] = 0
+		end
+		zombie y[i] = 327 + spawn y
+		zombie frame[i] = 0
+		zombie frame time[i] = 0
+		zombie hit time[i] = 0
+		zombie drop time[i] = 0
+		zombie flight time[i] = 0
+		return
+	end
 	def roll = random number (10000)
 	def rare = player level / 3
 	if rare > 4
@@ -1961,10 +2028,16 @@ func fire bullet
 	end
 	bullet active[i] = 1
 	bullet x[i] = player x
+	bullet move time[i] = 0
 	bullet direction[i] = player direction
 	if enhanced mode == 0
 		// Classic keeps the original unlimited, straight-shot baseline.
 		bullet damage[i] = 10
+		if player direction == 0
+			bullet x[i] = player x - 20
+		else
+			bullet x[i] = player x + 20
+		end
 		bullet y[i] = player y
 		player shoot time = 80
 		zombie_host_sound (0)
@@ -2017,6 +2090,50 @@ func fire bullet
 	zombie_host_sound (0)
 end
 
+func update classic bullets (elapsed: int)
+	def i = 0
+	def j = 0
+	def dx: int
+	def dy: int
+	def inflicted: int
+	while i < max bullets
+		if bullet active[i] <> 0
+			bullet move time[i] += elapsed
+			while bullet move time[i] > 4
+				bullet move time[i] -= 4
+				if bullet direction[i] == 0
+					bullet x[i] -= 2
+				else
+					bullet x[i] += 2
+				end
+			end
+			if bullet x[i] < 0 || bullet x[i] > 640
+				bullet active[i] = 0
+			else
+				j = 0
+				while j < max zombies && bullet active[i] <> 0
+					if zombie active[j] <> 0
+						dx = absolute (zombie x[j] - bullet x[i])
+						dy = absolute (zombie y[j] - bullet y[i])
+						if dx < 4 && dy < 10
+							inflicted = 10 - dy
+							zombie life[j] -= inflicted
+							player score += inflicted
+							zombie hit time[j] = 70
+							bullet active[i] = 0
+							if zombie life[j] < 1
+								zombie active[j] = 0
+							end
+						end
+					end
+					++j
+				end
+			end
+		end
+		++i
+	end
+end
+
 func update bullets (elapsed: int)
 	def i = 0
 	def j: int
@@ -2025,6 +2142,10 @@ func update bullets (elapsed: int)
 	def inflicted: int
 	def target = -1
 	def best distance = 100000
+	if enhanced mode == 0
+		update classic bullets (elapsed)
+		return
+	end
 	while i < max bullets
 		if bullet active[i] <> 0
 			if bullet direction[i] == 0
@@ -2095,6 +2216,66 @@ func update bullets (elapsed: int)
 	end
 end
 
+func update classic zombies (elapsed: int)
+	def i = 0
+	def dx: int
+	def dy: int
+	def dist x: int
+	def dist y: int
+	while i < max zombies
+		if zombie active[i] <> 0
+			if zombie hit time[i] > 0
+				zombie hit time[i] -= elapsed
+				if zombie hit time[i] < 0
+					zombie hit time[i] = 0
+				end
+			else
+				dist x = absolute (zombie x[i] - player x)
+				dist y = absolute (zombie y[i] - player y)
+				if dist x > zombie classic range attack[i]
+					if player x < zombie x[i]
+						zombie direction[i] = 0
+						zombie classic move x time[i] += elapsed
+						while zombie classic move x time[i] > zombie classic move x[i]
+							zombie classic move x time[i] -= zombie classic move x[i]
+							zombie x[i] -= 1
+						end
+					elsif player x > zombie x[i]
+						zombie direction[i] = 1
+						zombie classic move x time[i] += elapsed
+						while zombie classic move x time[i] > zombie classic move x[i]
+							zombie classic move x time[i] -= zombie classic move x[i]
+							zombie x[i] += 1
+						end
+					end
+					if dist y > zombie classic range attack[i] &&
+					   dist x < zombie classic range y[i]
+						if player y < zombie y[i]
+							zombie classic move y time[i] += elapsed
+							while zombie classic move y time[i] > zombie classic move y[i]
+								zombie classic move y time[i] -= zombie classic move y[i]
+								zombie y[i] -= 1
+							end
+						elsif player y > zombie y[i]
+							zombie classic move y time[i] += elapsed
+							while zombie classic move y time[i] > zombie classic move y[i]
+								zombie classic move y time[i] -= zombie classic move y[i]
+								zombie y[i] += 1
+							end
+						end
+					end
+				end
+				zombie frame time[i] += elapsed
+				if zombie frame time[i] > 150
+					zombie frame time[i] -= 150
+					zombie frame[i] = (zombie frame[i] + 1) % 2
+				end
+			end
+		end
+		++i
+	end
+end
+
 func update zombies (elapsed: int)
 	def i = 0
 	def j: int
@@ -2113,6 +2294,10 @@ func update zombies (elapsed: int)
 	def distance: int
 	def target distance: int
 	if time stop time > 0
+		return
+	end
+	if enhanced mode == 0
+		update classic zombies (elapsed)
 		return
 	end
 	while i < max zombies
@@ -2317,6 +2502,17 @@ func upgrades remain: int
 end
 
 func apply upgrade
+	if enhanced mode == 0
+		// The original implementation records a one-time upgrade flag. Its
+		// supplied player_upgrade() does not apply the later Enhanced stat
+		// system, so do not leak ammo, rank, support, or stat effects into
+		// Classic.
+		upgrade ranks += (1:d << (upgrade selection * 3))
+		upgrade mask |= upgrade code (upgrade selection)
+		upgrade pending = 0
+		upgrade menu = 0
+		return
+	end
 	if upgrade selection == 0
 		player speed += 35
 	elsif upgrade selection == 1
@@ -2396,6 +2592,28 @@ func update player (keys: dword, elapsed: int)
 	def dx = 0
 	def dy = 0
 	def move speed = player movement speed
+	if enhanced mode == 0
+		// Restore the original rifle's heat/overload cycle. The source allows
+		// sixteen shots, cools one heat unit every 250 ms, then locks the gun
+		// for two seconds until the fire button is released and pressed again.
+		if player gun overload time > 0
+			player gun overload time -= elapsed
+			if player gun overload time < 0
+				player gun overload time = 0
+			end
+		else
+			player gun warm time += elapsed
+			if player gun warm time > 250
+				player gun warm time -= 250
+				if player gun warm > 0
+					player gun warm -= 1
+				end
+			end
+		end
+		if (keys & key a) == 0
+			player gun latched = 0
+		end
+	end
 	player moving = 0
 	if (keys & key left) <> 0
 		dx -= move speed * elapsed / 1000
@@ -2417,22 +2635,50 @@ func update player (keys: dword, elapsed: int)
 	end
 	player x += dx
 	player y += dy
-	if player x < 24
-		player x = 24
-	end
-	if player x > 616
-		player x = 616
+	if enhanced mode == 0
+		if player x < 20
+			player x = 20
+		end
+		if player x > 620
+			player x = 620
+		end
+	else
+		if player x < 24
+			player x = 24
+		end
+		if player x > 616
+			player x = 616
+		end
 	end
 	if player y < 327
 		player y = 327
 	end
-	if player y > 470
-		player y = 470
+	if enhanced mode == 0
+		if player y > 480
+			player y = 480
+		end
+	else
+		if player y > 470
+			player y = 470
+		end
 	end
-	if (keys & key a) <> 0 && player shoot time <= 0
-		fire bullet
-		if player shoot time <= 0
-			player shoot time = player attack delay
+	if enhanced mode == 0
+		if (keys & key a) <> 0 && player shoot time <= 0 &&
+		   player gun overload time == 0 && player gun latched == 0
+			if player gun warm >= player gun warm max
+				player gun overload time = 2000
+				player gun latched = 1
+			else
+				fire bullet
+				player gun warm += 1
+			end
+		end
+	else
+		if (keys & key a) <> 0 && player shoot time <= 0
+			fire bullet
+			if player shoot time <= 0
+				player shoot time = player attack delay
+			end
 		end
 	end
 	if player shoot time > 0
@@ -2527,7 +2773,7 @@ func draw game
 	if farmer easter egg active <> 0
 		zombie_host_farmer (farmer easter egg x, farmer easter egg y)
 	end
-	if upgrade rank (3) > 0
+	if enhanced mode <> 0 && upgrade rank (3) > 0
 		laser end x = laser stop x
 		zombie_host_laser (player x, player y, player direction, laser end x)
 	end
@@ -2647,8 +2893,13 @@ func draw game
 		end
 		++i
 	end
-	zombie_host_hud (player score, player life, player level, night, living,
-		pig event started, pig saved count, player ammo, player ammo max)
+	if enhanced mode == 0
+		zombie_host_hud (player score, player life, player level, night, living,
+			0, 0, 0, 0)
+	else
+		zombie_host_hud (player score, player life, player level, night, living,
+			pig event started, pig saved count, player ammo, player ammo max)
+	end
 	if upgrade menu <> 0
 		zombie_host_upgrade (upgrade selection, upgrade mask, upgrade ranks,
 			enhanced mode)
@@ -2715,6 +2966,9 @@ func update high score
 end
 
 func start game (mode: int)
+	if zombie_host_set_mode (mode) <> 0
+		return
+	end
 	enhanced mode = mode
 	reset game
 	screen = screen game
@@ -2950,7 +3204,12 @@ public [name="c"] func main (argc: int, argv: [] string)
 					if spawn time > spawn interval
 						spawn time -= spawn interval
 						spawn zombie
-						if spawn interval > 500
+						if enhanced mode == 0
+							spawn interval -= spawn interval * 4 / 1000
+							if spawn interval < 1
+								spawn interval = 1
+							end
+						elsif spawn interval > 500
 							spawn interval -= 10
 						end
 					end
@@ -2960,12 +3219,25 @@ public [name="c"] func main (argc: int, argv: [] string)
 						spawn pickup
 						pickup spawn interval = 4000 + random number (4000)
 					end
-					if player score >= player next level && upgrade pending == 0
-						player level += 1
-						player next level += 400 + player level * 125
-						if upgrades remain <> 0
-							upgrade pending = 1
-							upgrade menu = 1
+					if upgrade pending == 0
+						if enhanced mode == 0
+							if player score > player next level
+								player level += 1
+								player next level *= 2
+								if upgrades remain <> 0
+									upgrade pending = 1
+									upgrade menu = 1
+								end
+							end
+						else
+							if player score >= player next level
+								player level += 1
+								player next level += 400 + player level * 125
+								if upgrades remain <> 0
+									upgrade pending = 1
+									upgrade menu = 1
+								end
+							end
 						end
 					end
 				end

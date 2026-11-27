@@ -8,22 +8,25 @@ under `Installer/ZombieAttack/` and is never edited by the port.
 
 | Mode | Contract | Status |
 | --- | --- | --- |
-| Classic | Preserve the supplied game's rules, upgrade model, timing, and one-time upgrade flags. | In progress |
+| Classic | Preserve the supplied game's rules, upgrade model, timing, and one-time upgrade flags. | Implemented in Zinc baseline path; hardware confirmation pending |
 | Enhanced | Preserve the original as a baseline while adding bounded ranked stat upgrades and optional configuration knobs. | In progress |
 
 ## Recorded differences
 
 | Area | Original behavior | Enhanced behavior | Classic requirement |
 | --- | --- | --- | --- |
+| Assets | Original `Data/` BMP/WAV files | Original baseline plus Zinc replacement/additional artwork | Load byte-identical original files from `data/classic/`; never inherit Enhanced shared sprites |
 | Platform | SDL 1.2 desktop executable | Zinc game logic with a small H.OS C ABI host | H.OS rendering must not alter game rules |
 | Display | 640x480, 8-bit SDL surface | 640x480 RGB565 software framebuffer presented by `hwdisp` | Same logical viewport |
 | Input | Keyboard events | SF3500 `joykey`; D-pad/A/B/Start/Select mapping | Map controls without changing rules |
 | Exit | SDL quit / escape path | Select+Start emergency exit | Preserve safe return path |
 | Bullets | Original red 6x3 directional sheet | Finite rifle ammunition, slower pistol fallback, cooldown, bounded spread, nearest-target collision, and Laser Aim accuracy/damage assistance | Match original collision model |
+| Rifle timing | 80 ms fire delay, 16-shot heat limit, 250 ms heat decay, 2 s overload | Finite ammo and mode-specific cooldowns | Restore original heat and overload cycle |
 | Upgrades | Ten one-time flags; no rank system | All ten Enhanced choices have five meaningful ranks; packed rank state remains Zinc-side | Ten one-time flags |
 | Upgrade menu | Blocking level-up menu | Threshold-triggered menu; B/Start cancel; owned ranks disabled | Preserve original selection semantics where possible |
 | Audio | SDL mixed WAV channels | H.OS boundary; generated tones in current baseline | Original WAV behavior is a separate fidelity task |
 | Enemies | Three base zombie types with shared life behavior | Typed zombie, farm-animal, and aerial crow profiles, player-level scaling, armor, contact damage, rare mutations, and status effects | Preserve original three-type behavior |
+| Spawn/movement | Off-screen x positions, 75 ms-ish randomized per-pixel movement, original Y pursuit window | On-screen level-scaled movement and target selection | Restore original spawn geometry and movement cadence |
 | Pickups | None | Rare weighted health, damage, speed, rapid-fire, and ammo-crate pickups plus cow-pie hazards with farm-themed sprites | No pickups |
 
 ## Enhanced rank policy
@@ -159,6 +162,21 @@ current/max ranks without adding a platform-sensitive ABI structure.
   spawning to the original three humanoid classes, restores straight unlimited
   shots, suppresses enhanced support/event systems, and caps upgrades at one
   purchase; Enhanced retains the expanded systems and five-rank progression.
+
+### 2026-11-27 — Separate original Classic asset/code path
+
+- Added explicit `data/classic/` and `data/enhanced/` asset sets to the build.
+- Classic assets are copied only from the supplied original `Data/` directory;
+  SHA-256 checks confirm its commando, zombie, and bullet sheets match the
+  originals byte-for-byte. Enhanced replacements are isolated to its own set.
+- Added a mode-aware host asset reload before gameplay starts, with a fallback
+  to the root data directory for older development cards.
+- Restored the Classic gameplay path to the supplied source's off-screen spawn
+  geometry, three humanoid classes, randomized movement cadence, narrow hit
+  checks, original bullet stepping and scoring, rifle heat/overload cycle,
+  source level/spawn escalation, and one-time upgrade-flag behavior.
+- Classic intentionally does not apply the Enhanced contact-damage/game-over,
+  ammo, spread, support, pickup, mutation, rescue, or ranked-upgrade systems.
 
 ### 2026-11-27 — Menu contrast and Enhanced ammunition balance
 

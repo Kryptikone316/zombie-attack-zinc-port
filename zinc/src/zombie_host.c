@@ -58,10 +58,25 @@ static image_t assets[ASSET_COUNT];
 static int display_active;
 static int audio_active;
 static char data_root[512];
+static char asset_root[512];
 static int sound_volume = 5;
 static int music_volume = 5;
 static int global_volume = 5;
 static const unsigned short transparent = 0xf81f;
+
+static const char *asset_names[ASSET_COUNT] = {
+    "farm.bmp", "commando.bmp", "zombie.bmp", "bullet.bmp",
+    "pickup-health.bmp", "pickup-damage.bmp", "status-damage.bmp",
+    "status-poison.bmp", "status-cripple.bmp", "animal-chicken.bmp",
+    "animal-pig.bmp", "animal-sheep.bmp", "animal-goat.bmp",
+    "animal-cow.bmp", "animal-llama.bmp", "animal-unicorn.bmp",
+    "pickup-speed.bmp", "pickup-rapid.bmp", "status-speed.bmp",
+    "status-rapid.bmp", "cow-pie.bmp", "animal-crow.bmp",
+    "rescue-piglet.bmp", "big-bad-wolf.bmp", "beagle-buddy.bmp",
+    "pickup-ammo.bmp", "lawn-mower.bmp", "wood-chipper.bmp",
+    "squirrel.bmp", "bad-nut.bmp", "icon.bmp", "yeti.bmp",
+    "farmer-easter-egg.bmp"
+};
 
 static unsigned short rd16(const unsigned char *p)
 {
@@ -160,6 +175,24 @@ static void release_assets(void)
         free(assets[i].pixels);
         assets[i].pixels = NULL;
     }
+}
+
+static int load_asset_set(const char *directory)
+{
+    char path[512];
+    int i;
+
+    release_assets();
+    for (i = 0; i < ASSET_COUNT; i++) {
+        snprintf(path, sizeof(path), "%s/%s", directory, asset_names[i]);
+        if (load_bmp(path, &assets[i]) != 0) {
+            fprintf(stderr, "zombie: unable to load %s\n", path);
+            release_assets();
+            return -1;
+        }
+    }
+    snprintf(asset_root, sizeof(asset_root), "%s", directory);
+    return 0;
 }
 
 static unsigned short tint_pixel(unsigned short color, int tint)
@@ -342,31 +375,13 @@ int zombie_host_init(int unused)
 {
     const char *data_dir = getenv("ZOMBIE_DATA");
     char path[512];
-    const char *names[ASSET_COUNT] = {
-        "farm.bmp", "commando.bmp", "zombie.bmp", "bullet.bmp",
-        "pickup-health.bmp", "pickup-damage.bmp", "status-damage.bmp",
-        "status-poison.bmp", "status-cripple.bmp", "animal-chicken.bmp",
-        "animal-pig.bmp", "animal-sheep.bmp", "animal-goat.bmp",
-        "animal-cow.bmp", "animal-llama.bmp", "animal-unicorn.bmp",
-        "pickup-speed.bmp", "pickup-rapid.bmp", "status-speed.bmp",
-        "status-rapid.bmp", "cow-pie.bmp", "animal-crow.bmp",
-        "rescue-piglet.bmp", "big-bad-wolf.bmp", "beagle-buddy.bmp",
-        "pickup-ammo.bmp", "lawn-mower.bmp", "wood-chipper.bmp",
-        "squirrel.bmp", "bad-nut.bmp", "icon.bmp", "yeti.bmp",
-        "farmer-easter-egg.bmp"
-    };
-    int i;
     (void)unused;
 
     if (!data_dir || !*data_dir) data_dir = "./data";
     snprintf(data_root, sizeof(data_root), "%s", data_dir);
-    for (i = 0; i < ASSET_COUNT; i++) {
-        snprintf(path, sizeof(path), "%s/%s", data_dir, names[i]);
-        if (load_bmp(path, &assets[i]) != 0) {
-            fprintf(stderr, "zombie: unable to load %s\n", path);
-            release_assets();
-            return -1;
-        }
+    snprintf(path, sizeof(path), "%s/enhanced", data_dir);
+    if (load_asset_set(path) != 0 && load_asset_set(data_dir) != 0) {
+        return -1;
     }
     memset(framebuffer, 0, sizeof(framebuffer));
     joykey_init();
@@ -382,6 +397,18 @@ int zombie_host_init(int unused)
             display_active ? "active" : "unavailable",
             audio_active ? "active" : "unavailable");
     return 0;
+}
+
+int zombie_host_set_mode(int mode)
+{
+    char path[512];
+
+    snprintf(path, sizeof(path), "%s/%s", data_root,
+             mode == 0 ? "classic" : "enhanced");
+    if (load_asset_set(path) == 0) return 0;
+
+    /* Development cards from before the split remain usable. */
+    return load_asset_set(data_root);
 }
 
 void zombie_host_deinit(int unused)
@@ -713,13 +740,18 @@ void zombie_host_bullet(int x, int y, int direction)
 void zombie_host_hud(int score, int life, int level, int night, int count,
                      int rescue_active, int pigs_saved, int ammo, int ammo_max)
 {
-    (void)ammo_max;
     fill_rect(0, 0, GAME_W, 39, 0x2104);
     draw_text(6, 4, "ZOMBIE ATTACK", 1);
-    draw_text(170, 4, "AMMO", 1); draw_number_scaled(200, 4, ammo, 1);
-    draw_text(265, 4, "SCORE", 1); draw_number_scaled(302, 4, score, 1);
-    draw_text(395, 4, "LIFE", 1); draw_number_scaled(425, 4, life, 1);
-    draw_text(490, 4, "LVL", 1); draw_number_scaled(514, 4, level, 1);
+    if (ammo_max > 0) {
+        draw_text(170, 4, "AMMO", 1); draw_number_scaled(200, 4, ammo, 1);
+        draw_text(265, 4, "SCORE", 1); draw_number_scaled(302, 4, score, 1);
+        draw_text(395, 4, "LIFE", 1); draw_number_scaled(425, 4, life, 1);
+        draw_text(490, 4, "LVL", 1); draw_number_scaled(514, 4, level, 1);
+    } else {
+        draw_text(210, 4, "SCORE", 1); draw_number_scaled(247, 4, score, 1);
+        draw_text(365, 4, "LIFE", 1); draw_number_scaled(395, 4, life, 1);
+        draw_text(490, 4, "LVL", 1); draw_number_scaled(514, 4, level, 1);
+    }
     draw_time_icon(8, 22, night);
     if (rescue_active) {
         draw_text(95, 25, "PIG", 1);

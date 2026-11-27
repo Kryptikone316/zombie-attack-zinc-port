@@ -11,8 +11,11 @@ ORIGINAL_DATA=$ROOT/../Installer/ZombieAttack/Data
 ENHANCED_DATA=$ROOT/assets
 BUILD=$ROOT/build
 DIST=$ROOT/dist/roms/ports
+DATA_OUT=$DIST/zombieattack/data
 
-mkdir -p "$BUILD" "$DIST/zombieattack/data"
+mkdir -p "$BUILD" "$DIST/zombieattack"
+rm -rf "$DATA_OUT"
+mkdir -p "$DATA_OUT/classic" "$DATA_OUT/enhanced"
 
 gcc -m32 -O2 -fomit-frame-pointer \
     "$ZINC_ROOT/bootstrap/zc.c" "$ZINC_ROOT/bootstrap/io.c" \
@@ -44,8 +47,14 @@ MIPS_FLAGS="--sysroot=$SYSROOT -EL -mips32r2 -mtune=74kc -mabi=32 -mhard-float -
 cp "$BUILD/zombie-attack.mipsel" "$DIST/zombieattack/"
 cp "$ROOT/run.sh" "$ROOT/README.md" "$DIST/zombieattack/"
 cp "$ROOT/Zombie Attack.sh" "$DIST/"
-find "$ORIGINAL_DATA" -maxdepth 1 -type f -exec cp -a {} "$DIST/zombieattack/data/" \;
-find "$ENHANCED_DATA" -maxdepth 1 -type f -exec cp -a {} "$DIST/zombieattack/data/" \;
+# Keep the source game's data intact for Classic. Enhanced starts from the
+# same baseline and overlays only the Zinc additions/replacements. The root
+# data directory remains an Enhanced-compatible fallback for older launchers.
+find "$ORIGINAL_DATA" -maxdepth 1 -type f -exec cp -a {} "$DATA_OUT/classic/" \;
+find "$ORIGINAL_DATA" -maxdepth 1 -type f -exec cp -a {} "$DATA_OUT/enhanced/" \;
+find "$ENHANCED_DATA" -maxdepth 1 -type f -exec cp -a {} "$DATA_OUT/enhanced/" \;
+find "$ORIGINAL_DATA" -maxdepth 1 -type f -exec cp -a {} "$DATA_OUT/" \;
+find "$ENHANCED_DATA" -maxdepth 1 -type f -exec cp -a {} "$DATA_OUT/" \;
 chmod 755 "$DIST/zombieattack/run.sh" "$DIST/Zombie Attack.sh"
 
 echo "built $DIST/zombieattack/zombie-attack.mipsel"

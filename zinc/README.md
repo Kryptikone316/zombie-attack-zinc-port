@@ -26,10 +26,18 @@ Classic and Enhanced best scores are stored independently in
 `data/highscores.cfg`. The High Scores page includes a separate reset entry
 under each mode's score.
 
-Classic mode keeps the original three humanoid enemy classes, straight
-unlimited shots, and one-time upgrade limits. Enhanced mode enables the added
-farm enemies, mutations, pickups, rescue events, support systems, and ranked
-upgrades.
+Classic mode now uses the original supplied BMP/WAV set from
+`data/classic/`, including the original commando, zombie, farm, and bullet
+art. Its gameplay path restores the supplied source's three humanoid classes,
+off-screen spawn geometry, movement cadence, 500 px/s bullet stepping, narrow
+bullet collision, rifle heat/overload behavior, score thresholds, and one-time
+upgrade flags. It does not run the Enhanced ammo, spread, support, pickup,
+mutation, rescue, or ranked-stat systems. Enhanced mode loads the separate
+`data/enhanced/` set and enables the Zinc additions.
+
+The package root `data/` remains an Enhanced-compatible fallback for older
+launchers. New mode-aware launches select the explicit variant before the first
+game frame, so selecting Classic cannot inherit Enhanced artwork.
 
 The build keeps the original BMP and WAV assets in `data/` for this first
 hardware validation build.
