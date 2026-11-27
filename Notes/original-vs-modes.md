@@ -266,3 +266,6 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added a separate six-line pickup-denial taunt pool aimed at enemies who miss
   the item: `FINDERS KEEPERS`, `TOO SLOW, CORPSE`, and similar anti-hero
   remarks. These appear occasionally and do not immediately repeat.
+- Added eight long-cooldown scenery comments covering the barn, tree, broken
+  fence, crops, day/night cycle, and the generally questionable scenery. They
+  are context-aware for day versus night and avoid immediate repeats.

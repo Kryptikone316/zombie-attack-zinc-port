@@ -145,6 +145,8 @@ def crow spotted: int
 def farm joke cooldown: int
 def wolf event seen: int
 def pickup taunt last: int
+def scenery comment cooldown: int
+def scenery comment last: int
 def ambient story cooldown: int
 def ambient story active: int
 def ambient story index: int
@@ -356,6 +358,7 @@ func start ambient story
 	dialogue time = 2800
 	// Keep the two ambient systems from speaking back-to-back.
 	farm joke cooldown = 26000 + random number (18000)
+	scenery comment cooldown = 22000 + random number (12000)
 	ambient story cooldown = 55000 + random number (35000)
 end
 
@@ -365,6 +368,9 @@ func update dialogue (elapsed: int)
 	end
 	if ambient story cooldown > 0
 		ambient story cooldown -= elapsed
+	end
+	if scenery comment cooldown > 0
+		scenery comment cooldown -= elapsed
 	end
 	if dialogue time > 0
 		dialogue time -= elapsed
@@ -391,6 +397,9 @@ func update dialogue (elapsed: int)
 		farm joke cooldown = 24000 + random number (18000)
 	elsif enhanced mode <> 0 && ambient story cooldown <= 0
 		start ambient story
+	elsif enhanced mode <> 0 && scenery comment cooldown <= 0
+		say scenery dialogue
+		scenery comment cooldown = 70000 + random number (40000)
 	end
 end
 
@@ -478,6 +487,21 @@ func say pickup dialogue (pickup kind: int)
 	end
 end
 
+func say scenery dialogue
+	def scene = random number (8)
+	def night = (day time / 30000) % 2
+	if night <> 0 && random number (2) == 0
+		scene = 3
+	elsif night == 0 && random number (2) == 0
+		scene = 4
+	end
+	if scene == scenery comment last
+		scene = (scene + 1) % 8
+	end
+	scenery comment last = scene
+	say dialogue (151 + scene)
+end
+
 func reset game
 	def i = 0
 	player x = 320
@@ -561,6 +585,8 @@ func reset game
 	farm joke cooldown = 18000 + random number (12000)
 	wolf event seen = 0
 	pickup taunt last = -1
+	scenery comment cooldown = 75000 + random number (45000)
+	scenery comment last = -1
 	ambient story cooldown = 42000 + random number (24000)
 	ambient story active = 0
 	ambient story index = 0
