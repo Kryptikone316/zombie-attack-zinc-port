@@ -246,11 +246,11 @@ static const char *const font_data[36] = {
     "10001100011000110001100011000101110", "10001100011000110001100011000101010",
     "10001100011000110101101011101110001", "10001100010101000100010101000110001",
     "10001100010101000100001000010000100", "11111000010001000100010001000011111",
-    "01110100011000110001100011000101110", "00100011011000010000100001000011111",
-    "01110100011000100000100001000011111", "11110000010000100001110000001011110",
-    "00010001100101010010111110001000100", "11111100001000011110100001000011111",
-    "01110100001000011110100011000101110", "11111000001000000110000100001000100",
-    "01110100011000110001111100001000100", "11111111111111111111111111111111111"
+    "01110100011000110001100011000101110", "00100011000010000100001000010001110",
+    "01110100010000100010001000100011111", "11110000010000101110000010000111110",
+    "00010001100101010010111110001000010", "11111100001000011110000010000111110",
+    "01110100001000011110100011000101110", "11111000010001000100010000100001000",
+    "01110100011000101110100011000101110", "01110100011000101111000010000101110"
 };
 
 static int font_index(char c)
@@ -600,11 +600,11 @@ void zombie_host_hud(int score, int life, int level, int night, int count,
 {
     (void)ammo_max;
     fill_rect(0, 0, GAME_W, 39, 0x2104);
-    draw_text(6, 4, "ZOMBIE ATTACK", 2);
-    draw_text(170, 4, "AMMO", 2); draw_number_scaled(220, 4, ammo, 2);
-    draw_text(265, 4, "SCORE", 2); draw_number_scaled(326, 4, score, 2);
-    draw_text(395, 4, "LIFE", 2); draw_number_scaled(445, 4, life, 2);
-    draw_text(490, 4, "LVL", 2); draw_number_scaled(532, 4, level, 2);
+    draw_text(6, 4, "ZOMBIE ATTACK", 1);
+    draw_text(170, 4, "AMMO", 1); draw_number_scaled(200, 4, ammo, 1);
+    draw_text(265, 4, "SCORE", 1); draw_number_scaled(302, 4, score, 1);
+    draw_text(395, 4, "LIFE", 1); draw_number_scaled(425, 4, life, 1);
+    draw_text(490, 4, "LVL", 1); draw_number_scaled(514, 4, level, 1);
     draw_time_icon(8, 22, night);
     if (rescue_active) {
         draw_text(95, 25, "PIG", 1);
@@ -666,17 +666,17 @@ void zombie_host_help(int unused)
     zombie_host_background(1);
     fill_rect(78, 48, 484, 385, 0x2104);
     fill_rect(83, 53, 474, 375, 0x51e0);
-    draw_text(235, 75, "HOW TO PLAY", 2);
-    draw_text(122, 130, "D PAD MOVE", 1);
-    draw_text(122, 155, "A FIRE OR SELECT", 1);
-    draw_text(122, 180, "B CANCEL MENUS", 1);
-    draw_text(122, 205, "START PAUSE GAME", 1);
-    draw_text(122, 230, "SELECT START EXIT", 1);
-    draw_text(122, 275, "CARRY PIGLETS TO THE BARN", 1);
-    draw_text(122, 300, "SAVE ALL THREE TO HUNT THE WOLF", 1);
-    draw_text(122, 340, "CLASSIC AND ENHANCED MODES", 1);
-    draw_text(122, 365, "USE THE SETTINGS MENU", 1);
-    draw_text(195, 395, "A OR B BACK", 1);
+    draw_text(248, 75, "HOW TO PLAY", 2);
+    draw_text(260, 115, "D PAD MOVE", 2);
+    draw_text(218, 140, "A FIRE OR SELECT", 2);
+    draw_text(230, 165, "B CANCEL MENUS", 2);
+    draw_text(224, 190, "START PAUSE GAME", 2);
+    draw_text(218, 215, "SELECT START EXIT", 2);
+    draw_text(170, 260, "CARRY PIGLETS TO THE BARN", 2);
+    draw_text(128, 285, "SAVE ALL THREE TO HUNT THE WOLF", 2);
+    draw_text(164, 330, "CLASSIC AND ENHANCED MODES", 2);
+    draw_text(194, 355, "USE THE SETTINGS MENU", 2);
+    draw_text(254, 395, "A OR B BACK", 2);
 }
 
 void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks,

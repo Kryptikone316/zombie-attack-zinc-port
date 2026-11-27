@@ -175,3 +175,14 @@ current/max ranks without adding a platform-sensitive ABI structure.
   lengths in the embedded 5×7 font table. Every glyph now has a complete,
   bounds-safe 35-pixel pattern, preventing digits from borrowing neighboring
   glyph data and rendering as letters or corrupted shapes.
+
+### 2026-11-27 — HUD, help text, and piglet event readability
+
+- Reduced the in-game HUD typography to the compact scale while retaining the
+  larger dedicated menu/help typography.
+- Reflowed the How To Play page so its instructional lines use the larger scale
+  without running outside the 640×480 viewport.
+- Corrected the settings digit glyph rows with verified 5×7 patterns.
+- Increased piglet pickup tolerance and rescue durability so all three targets
+  remain practically deliverable one at a time instead of being lost while the
+  player reaches the next piglet.

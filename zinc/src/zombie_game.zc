@@ -901,7 +901,9 @@ func spawn rescue pigs
 		pig state[i] = pig field
 		pig x[i] = 140 + random number (360)
 		pig y[i] = 350 + random number (110)
-		pig life[i] = 3
+		// Give each rescue target enough margin to survive while the player
+		// reaches the remaining piglets one at a time.
+		pig life[i] = 8
 		pig hit time[i] = 0
 		++i
 	end
@@ -933,7 +935,7 @@ func update rescue pigs (elapsed: int)
 			if pig carried index < 0
 				dx = absolute (pig x[i] - player x)
 				dy = absolute (pig y[i] - player y)
-				if dx < 25 && dy < 30
+				if dx < 40 && dy < 42
 					pig state[i] = pig carried
 					pig carried index = i
 					zombie_host_sound (3)
