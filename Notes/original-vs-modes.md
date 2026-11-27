@@ -186,3 +186,9 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Increased piglet pickup tolerance and rescue durability so all three targets
   remain practically deliverable one at a time instead of being lost while the
   player reaches the next piglet.
+
+### 2026-11-27 — Menu typography pass
+
+- Enlarged launcher, settings, upgrade, pause, and game-over menu text while
+  retaining panel bounds and readable contrast.
+- Kept the How To Play page on its larger, reflowed layout.

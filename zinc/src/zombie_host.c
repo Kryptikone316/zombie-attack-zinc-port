@@ -628,14 +628,14 @@ void zombie_host_launcher(int selected)
     fill_rect(91, 49, 458, 382, 0x51e0);
     draw_image(ASSET_ICON, 0, 0, 48, 48, 116, 68, 0);
     draw_text(190, 73, "ZOMBIE ATTACK", 2);
-    draw_text(204, 105, "MAIN MENU", 1);
+    draw_text(204, 105, "MAIN MENU", 2);
     for (i = 0; i < 5; i++) {
         int y = 145 + i * 45;
         if (i == selected) fill_rect(155, y - 5, 330, 31, 0x4208);
-        draw_text(175, y, labels[i], 1);
+        draw_text(175, y, labels[i], 2);
     }
-    draw_text(176, 390, "A SELECT   B BACK", 1);
-    draw_text(170, 410, "SELECT START EXIT", 1);
+    draw_text(176, 390, "A SELECT   B BACK", 2);
+    draw_text(170, 410, "SELECT START EXIT", 2);
 }
 
 void zombie_host_settings_menu(int selected, int sound, int music, int global)
@@ -652,12 +652,12 @@ void zombie_host_settings_menu(int selected, int sound, int music, int global)
     for (i = 0; i < 4; i++) {
         int y = 150 + i * 45;
         if (i == selected) fill_rect(145, y - 5, 350, 31, 0x4208);
-        draw_text(164, y, labels[i], 1);
+        draw_text(164, y, labels[i], 2);
         if (i < 3) draw_number_scaled(455, y - 1, values[i], 2);
     }
-    draw_text(155, 345, "LEFT RIGHT CHANGE", 1);
-    draw_text(174, 365, "A B BACK", 1);
-    draw_text(145, 390, "MUSIC IS STORED FOR FUTURE", 1);
+    draw_text(155, 345, "LEFT RIGHT CHANGE", 2);
+    draw_text(174, 365, "A B BACK", 2);
+    draw_text(145, 390, "MUSIC IS STORED FOR FUTURE", 2);
 }
 
 void zombie_host_help(int unused)
@@ -711,17 +711,17 @@ void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks,
         int owned = rank >= max_rank ||
                     (max_rank == 1 && (flags & codes[i]) != 0);
         if (i == selected) {
-            fill_rect(x - 3, y - 3, 256, 31, owned ? 0xf800 : 0x4208);
+            fill_rect(x - 3, y - 3, 256, 35, owned ? 0xf800 : 0x4208);
         }
-        fill_rect(x, y, 250, 25, owned ? 0x7bef : 0x8c41);
-        draw_text(x + 8, y + 8, enhanced ? enhanced_labels[i] : classic_labels[i], 1);
+        fill_rect(x, y, 250, 29, owned ? 0x7bef : 0x8c41);
+        draw_text(x + 8, y + 7, enhanced ? enhanced_labels[i] : classic_labels[i], 2);
         draw_text(x + 195, y + 8, "R", 1);
         draw_number(x + 204, y + 8, rank);
         draw_text(x + 216, y + 8, "M", 1);
         draw_number(x + 225, y + 8, max_rank);
     }
-    draw_text(175, 345, "A SELECT", 1);
-    draw_text(295, 345, "B/START CANCEL", 1);
+    draw_text(175, 345, "A SELECT", 2);
+    draw_text(295, 345, "B START CANCEL", 1);
 }
 
 void zombie_host_mower(int x, int y, int direction)
@@ -753,14 +753,14 @@ void zombie_host_pause(int unused)
     (void)unused;
     fill_rect(220, 185, 200, 95, 0x0000);
     draw_text(260, 205, "PAUSED", 2);
-    draw_text(248, 245, "START RESUME", 1);
+    draw_text(248, 245, "START RESUME", 2);
 }
 
 void zombie_host_game_over(int score)
 {
     fill_rect(160, 190, 320, 90, 0x0000);
     draw_text(230, 210, "GAME OVER", 2);
-    draw_text(220, 245, "SCORE", 1); draw_number(260, 245, score);
+    draw_text(220, 245, "SCORE", 2); draw_number_scaled(280, 241, score, 2);
 }
 
 void zombie_host_present(int unused)
