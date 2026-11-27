@@ -302,5 +302,8 @@ current/max ranks without adding a platform-sensitive ABI structure.
   the three human zombie rows, commando pose rows, Beagle Buddy frames, and
   two-frame squirrel/crow sheets. Gameplay, collision geometry, and targeting
   behavior are unchanged.
+- Refreshed the lawn mower and wood chipper equipment sprites to match the
+  same farm-themed pixel-art treatment. All regenerated multi-frame BMPs were
+  quantized to the 8-bit palette format required by the H.OS loader.
 - Added a rare sheep-specific counting joke: `IF YOU GUYS COUNT YOURSELVES /
   DO YOU FALL ASLEEP? GUESS NOT.`.
