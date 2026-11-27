@@ -211,3 +211,6 @@ current/max ranks without adding a platform-sensitive ABI structure.
   squirrel.
 - Added a 2.8-second speech duration and active-bubble suppression so lines
   remain occasional rather than becoming combat spam.
+- Added dedicated apostrophe and period glyphs for punctuation such as the cow
+  variation `DON'T HAVE A COW! WAIT...`.
+- Added a rarer chicken variation: `STOP CHICKEN ME OUT... / IT'S CREEPY`.

@@ -295,7 +295,11 @@ func say enemy dialogue (enemy type: int)
 	elsif enemy type == 2
 		say dialogue (5 + random number (2))
 	elsif enemy type == 3
-		say dialogue (7 + random number (2))
+		if random number (4) == 0
+			say dialogue (57 + random number (2))
+		else
+			say dialogue (7 + random number (2))
+		end
 	elsif enemy type == 4
 		say dialogue (9 + random number (2))
 	elsif enemy type == 5
@@ -303,7 +307,11 @@ func say enemy dialogue (enemy type: int)
 	elsif enemy type == 6
 		say dialogue (14 + random number (2))
 	elsif enemy type == 7
-		say dialogue (16 + random number (2))
+		if random number (4) == 0
+			say dialogue (55)
+		else
+			say dialogue (16 + random number (2))
+		end
 	elsif enemy type == 8
 		say dialogue (18 + random number (2))
 	elsif enemy type == 9

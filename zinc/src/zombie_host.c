@@ -232,7 +232,7 @@ static void darken(void)
     }
 }
 
-static const char *const font_data[39] = {
+static const char *const font_data[41] = {
     "01110100011000111111100011000110001", "11110100011000111110100011000111110",
     "01111100001000010000100001000001111", "11110100011000110001100011000111110",
     "11111100001000011110100001000011111", "11111100001000011110100001000010000",
@@ -252,7 +252,8 @@ static const char *const font_data[39] = {
     "01110100001000011110100011000101110", "11111000010001000100010000100001000",
     "01110100011000101110100011000101110", "01110100011000101111000010000101110",
     "00000001000010011111001000010000000", "00000000000000011111000000000000000",
-    "00100001000010000100001000000000100"
+    "00100001000010000100001000000000100",
+    "00100001000000000000000000000000000", "00000000000000000000000000000000100"
 };
 
 static int font_index(char c)
@@ -262,6 +263,8 @@ static int font_index(char c)
     if (c == '+') return 36;
     if (c == '-') return 37;
     if (c == '!') return 38;
+    if (c == '\'') return 39;
+    if (c == '.') return 40;
     return 35;
 }
 
@@ -698,7 +701,7 @@ typedef struct {
     const char *line_two;
 } dialogue_t;
 
-static const dialogue_t dialogue_lines[55] = {
+static const dialogue_t dialogue_lines[59] = {
     { "", "" },
     { "WALKER DOWN!", "NEXT TARGET" },
     { "BACK TO THE GRAVE", "YOU GO" },
@@ -753,7 +756,11 @@ static const dialogue_t dialogue_lines[55] = {
     { "RAPID FIRE", "LOUD AND PROUD" },
     { "MORE LEAD", "LESS DEAD" },
     { "SQUIRREL SIGHTED", "BAD NUTS INCOMING" },
-    { "NUTS TO YOU", "KEEP YOUR HEAD DOWN" }
+    { "NUTS TO YOU", "KEEP YOUR HEAD DOWN" },
+    { "DON'T HAVE A COW!", "WAIT..." },
+    { "THAT COW", "IS HAVING A BAD DAY" },
+    { "STOP CHICKEN ME OUT...", "IT'S CREEPY" },
+    { "THAT CHICKEN", "IS NO JOKE" }
 };
 
 void zombie_host_dialogue(int id, int x, int y)
