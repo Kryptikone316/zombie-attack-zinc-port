@@ -144,6 +144,7 @@ def dialogue time: int
 def crow spotted: int
 def farm joke cooldown: int
 def wolf event seen: int
+def pickup taunt last: int
 def ambient story cooldown: int
 def ambient story active: int
 def ambient story index: int
@@ -454,6 +455,16 @@ func say enemy dialogue (enemy type: int)
 end
 
 func say pickup dialogue (pickup kind: int)
+	def taunt = 0
+	if random number (4) == 0
+		taunt = random number (6)
+		if taunt == pickup taunt last
+			taunt = (taunt + 1) % 6
+		end
+		pickup taunt last = taunt
+		say dialogue (145 + taunt)
+		return
+	end
 	if pickup kind == pickup ammo
 		say dialogue quad (43, 44, 135, 136)
 	elsif pickup kind == pickup damage
@@ -549,6 +560,7 @@ func reset game
 	crow spotted = 0
 	farm joke cooldown = 18000 + random number (12000)
 	wolf event seen = 0
+	pickup taunt last = -1
 	ambient story cooldown = 42000 + random number (24000)
 	ambient story active = 0
 	ambient story index = 0

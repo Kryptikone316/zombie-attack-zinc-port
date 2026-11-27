@@ -263,3 +263,6 @@ current/max ranks without adding a platform-sensitive ABI structure.
   recovery.
 - Expanded pickup reactions to four choices per category, adding obvious-but-
   cheeky lines for ammo, damage, health, speed, and rapid-fire pickups.
+- Added a separate six-line pickup-denial taunt pool aimed at enemies who miss
+  the item: `FINDERS KEEPERS`, `TOO SLOW, CORPSE`, and similar anti-hero
+  remarks. These appear occasionally and do not immediately repeat.
