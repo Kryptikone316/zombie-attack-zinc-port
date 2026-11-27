@@ -1,0 +1,109 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-03-25 20:28+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../Source/l_hud.c:30
+msgid "Day"
+msgstr ""
+
+#: ../Source/l_hud.c:31
+msgid "Night"
+msgstr ""
+
+#: ../Source/l_hud.c:33
+#, c-format
+msgid "%s: %d, Level: %d, Experience: %d / %d"
+msgstr ""
+
+#: ../Source/l_hud.c:55 ../Source/l_hud.c:57
+msgid "Life:"
+msgstr ""
+
+#: ../Source/l_hud.c:56 ../Source/l_hud.c:58 ../Source/l_hud.c:59
+msgid "Gun warm:"
+msgstr ""
+
+#: ../Source/m_advance.c:41
+msgid "You have advance to next level, choose one upgrade:"
+msgstr ""
+
+#: ../Source/m_advance.c:44
+msgid "Fast walking (Shift key)"
+msgstr ""
+
+#: ../Source/m_advance.c:46
+msgid "More shoots before warm"
+msgstr ""
+
+#: ../Source/m_advance.c:48
+msgid "Fast shooting"
+msgstr ""
+
+#: ../Source/m_advance.c:50
+msgid "Laser aim"
+msgstr ""
+
+#: ../Source/m_advance.c:52
+msgid "Shoots in more directions"
+msgstr ""
+
+#: ../Source/m_advance.c:54
+msgid "Freeze time for 5 seconds"
+msgstr ""
+
+#: ../Source/m_advance.c:56
+msgid "More life"
+msgstr ""
+
+#: ../Source/m_advance.c:58
+msgid "Faster live restore"
+msgstr ""
+
+#: ../Source/m_advance.c:60
+msgid "Bullets give more damages"
+msgstr ""
+
+#: ../Source/m_advance.c:62
+msgid "Throw Granades (Space key)"
+msgstr ""
+
+#: ../Source/m_main.c:36 ../Source/m_main.c:90
+#, c-format
+msgid "Error in SDL: %s\n"
+msgstr ""
+
+#: ../Source/m_main.c:39
+#, c-format
+msgid "Error in engine: %s\n"
+msgstr ""
+
+#: ../Source/m_main.c:99
+#, c-format
+msgid "Couldn't start video mode: %s\n"
+msgstr ""
+
+#: ../Source/m_main.c:106
+msgid "Zombie Attack"
+msgstr ""
+
+#: ../Source/s_audio.c:52
+msgid "Cannot request proper audio format (U8, 11025, mono)"
+msgstr ""
+
+#: ../Source/s_resources.c:50
+msgid "Decompress file error"
+msgstr ""

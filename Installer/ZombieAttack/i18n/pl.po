@@ -1,0 +1,112 @@
+# Polish translations for l package.
+# Copyright (C) 2009 THE l'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the l package.
+# Kamil Pawłowski <kamilpe@gmail.com>, 2009.
+# Kamil Pawowski <kamilpe@gmail.com>, 2009.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Zombie Attack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-03-25 20:28+0100\n"
+"PO-Revision-Date: 2009-03-10 13:55+0100\n"
+"Last-Translator: Kamil Pawłowski <kamilpe@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%"
+"100<10 \n"
+
+#: ../Source/l_hud.c:30
+msgid "Day"
+msgstr "Dzien"
+
+#: ../Source/l_hud.c:31
+msgid "Night"
+msgstr "Noc"
+
+#: ../Source/l_hud.c:33
+#, c-format
+msgid "%s: %d, Level: %d, Experience: %d / %d"
+msgstr "%s: %d, Poziom: %d, Doswiadczenie: %d / %d"
+
+#: ../Source/l_hud.c:55 ../Source/l_hud.c:57
+msgid "Life:"
+msgstr "Zycie:"
+
+#: ../Source/l_hud.c:56 ../Source/l_hud.c:58 ../Source/l_hud.c:59
+msgid "Gun warm:"
+msgstr "Przegrzanie broni:"
+
+#: ../Source/m_advance.c:41
+msgid "You have advance to next level, choose one upgrade:"
+msgstr "Awansowales do nastepnego poziomu, wybierz ulepszenie:"
+
+#: ../Source/m_advance.c:44
+msgid "Fast walking (Shift key)"
+msgstr "Szybkie chodzenie (klawisz Shift)"
+
+#: ../Source/m_advance.c:46
+msgid "More shoots before warm"
+msgstr "Wiecej strzalow przed przegrzaniem"
+
+#: ../Source/m_advance.c:48
+msgid "Fast shooting"
+msgstr "Szybkie strzelanie"
+
+#: ../Source/m_advance.c:50
+msgid "Laser aim"
+msgstr "Laserowy celownik"
+
+#: ../Source/m_advance.c:52
+msgid "Shoots in more directions"
+msgstr "Strzelanie w roznych kierunkach"
+
+#: ../Source/m_advance.c:54
+msgid "Freeze time for 5 seconds"
+msgstr "Zatrzymanie czasu na 5 sekund"
+
+#: ../Source/m_advance.c:56
+msgid "More life"
+msgstr "Wiecej zycia"
+
+#: ../Source/m_advance.c:58
+msgid "Faster live restore"
+msgstr "Szybsze przywracanie zycia"
+
+#: ../Source/m_advance.c:60
+msgid "Bullets give more damages"
+msgstr "Pociski daja wiecej obrazen"
+
+#: ../Source/m_advance.c:62
+msgid "Throw Granades (Space key)"
+msgstr "Rzucanie granatami (klawisz Spacja)"
+
+#: ../Source/m_main.c:36 ../Source/m_main.c:90
+#, c-format
+msgid "Error in SDL: %s\n"
+msgstr "Blad w SDL: %s\n"
+
+#: ../Source/m_main.c:39
+#, c-format
+msgid "Error in engine: %s\n"
+msgstr "Blad w silniku: %s\n"
+
+#: ../Source/m_main.c:99
+#, c-format
+msgid "Couldn't start video mode: %s\n"
+msgstr "Blad podczas uruchamiania trybu graficznego: %s\n"
+
+#: ../Source/m_main.c:106
+msgid "Zombie Attack"
+msgstr "Atak Zombi"
+
+#: ../Source/s_audio.c:52
+msgid "Cannot request proper audio format (U8, 11025, mono)"
+msgstr "Nie udalo sie zarzadac odpowiedniego formatu audio (U8, 11025, mono)"
+
+#: ../Source/s_resources.c:50
+msgid "Decompress file error"
+msgstr "Problem z rozpakowaniem pliku"

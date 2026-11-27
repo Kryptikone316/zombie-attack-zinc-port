@@ -1,0 +1,2220 @@
+///////////////////////////////////////////////////////////////////////////////
+// Zombie Attack Zinc rewrite
+//
+// Gameplay logic is Zinc. zombie_host.c is only the SF3500/H.OS boundary.
+///////////////////////////////////////////////////////////////////////////////
+
+import "base/types"
+
+public [name="c"]
+import func zombie_host_init (int): int
+import func zombie_host_deinit (int)
+import func zombie_host_keys (int): dword
+import func zombie_host_time_ms (int): dword
+import func zombie_host_sleep (int)
+import func zombie_host_background (int)
+import func zombie_host_laser (int, int, int, int)
+import func zombie_host_player (int, int, int, int, int)
+import func zombie_host_zombie (int, int, int, int, int, int, int, int)
+import func zombie_host_bullet (int, int, int)
+import func zombie_host_pickup (int, int, int, int)
+import func zombie_host_cow_pie (int, int, int)
+import func zombie_host_pig (int, int, int, int)
+import func zombie_host_wolf (int, int, int, int, int)
+import func zombie_host_dog (int, int, int, int, int, int, int)
+import func zombie_host_player_status (int, int, int, int, int, int, int)
+import func zombie_host_hud (int, int, int, int, int, int, int, int, int)
+import func zombie_host_upgrade (int, dword, dword)
+import func zombie_host_game_over (int)
+import func zombie_host_pause (int)
+import func zombie_host_mower (int, int, int)
+import func zombie_host_chipper (int, int, int)
+import func zombie_host_squirrel (int, int, int, int)
+import func zombie_host_bad_nut (int, int, int)
+import func zombie_host_present (int)
+import func zombie_host_sound (int)
+import func zombie_host_audio_pump (int)
+end
+
+equ key left = 1:d
+equ key right = 2:d
+equ key up = 4:d
+equ key down = 8:d
+equ key a = 16:d
+equ key b = 32:d
+equ key start = 1024:d
+equ key select = 2048:d
+equ emergency = 3072:d
+
+equ max zombies = 32
+equ max bullets = 64
+equ max upgrades = 10
+equ max pickups = 3
+equ max cow pies = 8
+equ max squirrel nuts = 6
+equ max rescue pigs = 3
+equ max wolf time = 15000
+equ pig field = 1
+equ pig carried = 2
+equ pig saved = 3
+equ pig lost = 4
+equ barn x max = 110
+equ barn y min = 380
+equ dog inactive = 0
+equ dog active = 1
+equ dog retreating = 2
+equ dog cooldown = 3
+equ dog fence x = 560
+equ dog fence y = 420
+equ squirrel hole x = 303
+equ squirrel hole y = 285
+equ pickup health = 0
+equ pickup damage = 1
+equ pickup speed = 2
+equ pickup rapid = 3
+equ pickup ammo = 4
+
+def player x: int
+def player y: int
+def player direction: int
+def player frame: int
+def player frame time: int
+def player shoot time: int
+def player life: int
+def player score: int
+def player level: int
+def player next level: int
+def player speed: int
+def player damage: int
+def player shot delay: int
+def player life max: int
+def player damage boost: int
+def player damage boost time: int
+def player speed boost time: int
+def player rapid time: int
+def player ammo: int
+def player ammo max: int
+def player poison time: int
+def player poison tick time: int
+def player cripple time: int
+def player game over: int
+def player moving: int
+def paused: int
+def time stop time: int
+def time stop cooldown: int
+
+def day time: int
+def spawn time: int
+def spawn interval: int
+def pickup spawn time: int
+def pickup spawn interval: int
+def wolf spawn time: int
+def wolf spawn interval: int
+def random state: dword
+def upgrade menu: int
+def upgrade selection: int
+def upgrade pending: int
+def upgrade mask: dword
+def upgrade ranks: dword
+def last keys: dword
+
+def zombie active: [max zombies] int
+def zombie type: [max zombies] int
+def zombie direction: [max zombies] int
+def zombie x: [max zombies] int
+def zombie y: [max zombies] int
+def zombie life: [max zombies] int
+def zombie speed: [max zombies] int
+def zombie armor: [max zombies] int
+def zombie contact damage: [max zombies] int
+def zombie mutation: [max zombies] int
+def zombie frame: [max zombies] int
+def zombie frame time: [max zombies] int
+def zombie hit time: [max zombies] int
+def zombie drop time: [max zombies] int
+def zombie flight time: [max zombies] int
+def zombie pig interest: [max zombies] int
+
+def bullet active: [max bullets] int
+def bullet x: [max bullets] int
+def bullet y: [max bullets] int
+def bullet direction: [max bullets] int
+def bullet damage: [max bullets] int
+
+def pickup active: [max pickups] int
+def pickup type: [max pickups] int
+def pickup x: [max pickups] int
+def pickup y: [max pickups] int
+def pickup time: [max pickups] int
+def pickup pulse: [max pickups] int
+
+def cow pie active: [max cow pies] int
+def cow pie x: [max cow pies] int
+def cow pie y: [max cow pies] int
+def cow pie time: [max cow pies] int
+def cow pie pulse: [max cow pies] int
+
+def wolf active: int
+def wolf x: int
+def wolf y: int
+def wolf direction: int
+def wolf exit direction: int
+def wolf frame: int
+def wolf frame time: int
+def wolf time: int
+def wolf hit time: int
+def wolf attack time: int
+def wolf search time: int
+def wolf life: int
+def wolf vulnerable: int
+def wolf leaving: int
+
+def pig state: [max rescue pigs] int
+def pig x: [max rescue pigs] int
+def pig y: [max rescue pigs] int
+def pig life: [max rescue pigs] int
+def pig hit time: [max rescue pigs] int
+def pig event started: int
+def pig event time: int
+def pig saved count: int
+def pig carried index: int
+def wolf summoned: int
+def pig event cooldown: int
+
+def mower time: int
+def mower cooldown: int
+def mower x: int
+def mower y: int
+def mower direction: int
+def chipper time: int
+def chipper cooldown: int
+def chipper x: int
+def chipper y: int
+def chipper direction: int
+def chipper shot time: int
+
+def squirrel active: int
+def squirrel x: int
+def squirrel y: int
+def squirrel direction: int
+def squirrel frame: int
+def squirrel frame time: int
+def squirrel active time: int
+def squirrel cooldown: int
+def squirrel nut time: int
+
+def squirrel nut active: [max squirrel nuts] int
+def squirrel nut x: [max squirrel nuts] int
+def squirrel nut y: [max squirrel nuts] int
+def squirrel nut vx: [max squirrel nuts] int
+def squirrel nut vy: [max squirrel nuts] int
+def squirrel nut life: [max squirrel nuts] int
+def squirrel nut pulse: [max squirrel nuts] int
+
+def dog rank: int
+def dog state: int
+def dog x: int
+def dog y: int
+def dog direction: int
+def dog frame: int
+def dog frame time: int
+def dog life: int
+def dog active time: int
+def dog cooldown time: int
+def dog attack time: int
+def dog hit time: int
+
+func absolute (value: int): int
+	if value < 0
+		return -value
+	end
+	return value
+end
+
+func random number (limit: int): int
+	random state = random state * 1664525:d + 1013904223:d
+	return ((random state >> 16) % limit):int
+end
+
+func reset game
+	def i = 0
+	player x = 320
+	player y = 400
+	player direction = 1
+	player frame = 0
+	player frame time = 0
+	player shoot time = 0
+	player life = 20
+	player score = 0
+	player level = 1
+	player next level = 500
+	player speed = 100
+	player damage = 10
+	player shot delay = 90
+	player life max = 20
+	player ammo max = 60
+	player ammo = player ammo max
+	player damage boost = 0
+	player damage boost time = 0
+	player speed boost time = 0
+	player rapid time = 0
+	player poison time = 0
+	player poison tick time = 0
+	player cripple time = 0
+	player game over = 0
+	player moving = 0
+	paused = 0
+	time stop time = 0
+	time stop cooldown = 0
+	day time = 0
+	spawn time = 0
+	spawn interval = 2000
+	pickup spawn time = 0
+	pickup spawn interval = 14000
+	wolf spawn time = 0
+	wolf spawn interval = 32000
+	pig event time = 0
+	pig event started = 0
+	pig saved count = 0
+	pig carried index = -1
+	wolf summoned = 0
+	wolf vulnerable = 0
+	pig event cooldown = 0
+	mower time = 0
+	mower cooldown = 0
+	mower x = 0
+	mower y = 445
+	mower direction = 1
+	chipper time = 0
+	chipper cooldown = 0
+	chipper x = 90
+	chipper y = 355
+	chipper direction = 1
+	chipper shot time = 0
+	squirrel active = 0
+	squirrel x = squirrel hole x
+	squirrel y = squirrel hole y
+	squirrel direction = 1
+	squirrel frame = 0
+	squirrel frame time = 0
+	squirrel active time = 0
+	squirrel cooldown = 12000
+	squirrel nut time = 0
+	dog rank = 0
+	dog state = dog inactive
+	dog x = dog fence x
+	dog y = dog fence y
+	dog direction = 1
+	dog frame = 0
+	dog frame time = 0
+	dog life = 0
+	dog active time = 0
+	dog cooldown time = 0
+	dog attack time = 0
+	dog hit time = 0
+	random state = 305419896:d
+	upgrade menu = 0
+	upgrade selection = 0
+	upgrade pending = 0
+	upgrade mask = 0:d
+	upgrade ranks = 0:d
+	last keys = 0:d
+	while i < max zombies
+		zombie active[i] = 0
+		++i
+	end
+	i = 0
+	while i < max bullets
+		bullet active[i] = 0
+		bullet damage[i] = 0
+		++i
+	end
+	i = 0
+	while i < max pickups
+		pickup active[i] = 0
+		++i
+	end
+	i = 0
+	while i < max cow pies
+		cow pie active[i] = 0
+		++i
+	end
+	i = 0
+	while i < max squirrel nuts
+		squirrel nut active[i] = 0
+		++i
+	end
+	wolf active = 0
+	wolf time = 0
+	wolf hit time = 0
+	wolf attack time = 0
+	wolf search time = 0
+	wolf life = 0
+	wolf vulnerable = 0
+	wolf leaving = 0
+	i = 0
+	while i < max rescue pigs
+		pig state[i] = 0
+		pig x[i] = 0
+		pig y[i] = 0
+		pig life[i] = 0
+		pig hit time[i] = 0
+		++i
+	end
+end
+
+func spawn zombie
+	def i = 0
+	while i < max zombies && zombie active[i] <> 0
+		++i
+	end
+	if i == max zombies
+		return
+	end
+	zombie active[i] = 1
+	def roll = random number (10000)
+	def rare = player level / 3
+	if rare > 4
+		rare = 4
+	end
+	// Airborne and elite farm enemies become more common as the endless
+	// campaign advances, while the first few levels retain the classic mix.
+	if player level >= 3 && random number (100) < rare
+		zombie type[i] = 9
+	elsif player level >= 2 && random number (100) < rare * 2
+		zombie type[i] = 8
+	elsif player level >= 2 && random number (100) < rare * 4
+		zombie type[i] = 10
+	elsif roll < 5000
+		zombie type[i] = 0
+	elsif roll < 7700
+		zombie type[i] = 1
+	elsif roll < 8800
+		zombie type[i] = 2
+	elsif roll < 9200
+		zombie type[i] = 3
+	elsif roll < 9450
+		zombie type[i] = 4
+	elsif roll < 9650
+		zombie type[i] = 5
+	elsif roll < 9800
+		zombie type[i] = 6
+	elsif roll < 9900
+		zombie type[i] = 7
+	elsif roll < 9960
+		zombie type[i] = 8
+	elsif roll < 9970
+		zombie type[i] = 9
+	else
+		zombie type[i] = 10
+	end
+	zombie mutation[i] = 0
+	zombie pig interest[i] = 0
+	if zombie type[i] == 10
+		if random number (100) < 40
+			zombie pig interest[i] = 1
+		end
+	elsif random number (100) < 12
+		zombie pig interest[i] = 1
+	end
+	if zombie type[i] <> 10 && random number (100) < 12 + player level
+		if zombie type[i] == 0 || zombie type[i] == 4 || zombie type[i] == 6 || zombie type[i] == 8
+			zombie mutation[i] = 1
+		elsif zombie type[i] == 1 || zombie type[i] == 3 || zombie type[i] == 5
+			zombie mutation[i] = 2
+		else
+			zombie mutation[i] = 3
+		end
+	end
+	if zombie type[i] == 0
+		// Walker: the common, moderate baseline enemy.
+		zombie life[i] = 18 + player level * 2 + player damage
+		zombie speed[i] = 40 + player level * 2
+		zombie armor[i] = 0
+		zombie contact damage[i] = 1
+	elsif zombie type[i] == 1
+		// Feral: faster, but less durable than the walker.
+		zombie life[i] = 14 + player level * 2 + player damage
+		zombie speed[i] = 60 + player level * 2
+		zombie armor[i] = 0
+		zombie contact damage[i] = 1
+	elsif zombie type[i] == 2
+		// Heavy: the tank baseline.
+		zombie life[i] = 48 + player level * 4 + player damage * 2
+		zombie speed[i] = 24 + player level
+		zombie armor[i] = 1
+		zombie contact damage[i] = 2
+	elsif zombie type[i] == 3
+		// Chicken: a small, fast nuisance enemy.
+		zombie life[i] = 10 + player level + player damage / 2
+		zombie speed[i] = 90 + player level * 2
+		zombie armor[i] = 0
+		zombie contact damage[i] = 1
+	elsif zombie type[i] == 4
+		// Pig: a compact bruiser between the chicken and larger animals.
+		zombie life[i] = 30 + player level * 3 + player damage
+		zombie speed[i] = 38 + player level
+		zombie armor[i] = 0
+		zombie contact damage[i] = 2
+	elsif zombie type[i] == 5
+		// Sheep: slower and sturdier than a pig, but below a cow.
+		zombie life[i] = 44 + player level * 4 + player damage
+		zombie speed[i] = 30 + player level
+		zombie armor[i] = 1
+		zombie contact damage[i] = 2
+	elsif zombie type[i] == 6
+		// Goat: lighter than a sheep, but more mobile and aggressive.
+		zombie life[i] = 52 + player level * 4 + player damage
+		zombie speed[i] = 48 + player level
+		zombie armor[i] = 1
+		zombie contact damage[i] = 2
+	elsif zombie type[i] == 7
+		// Cow: the largest farm-animal tank.
+		zombie life[i] = 80 + player level * 5 + player damage * 2
+		zombie speed[i] = 18 + player level
+		zombie armor[i] = 2
+		zombie contact damage[i] = 3
+	elsif zombie type[i] == 8
+		// Llama: uncommon, durable, and more mobile than a cow.
+		zombie life[i] = 66 + player level * 4 + player damage
+		zombie speed[i] = 34 + player level
+		zombie armor[i] = 1
+		zombie contact damage[i] = 3
+	elsif zombie type[i] == 9
+		// Unicorn: exceedingly rare elite animal.
+		zombie life[i] = 115 + player level * 6 + player damage * 3
+		zombie speed[i] = 42 + player level
+		zombie armor[i] = 3
+		zombie contact damage[i] = 4
+	else
+		// Crow: aerial nuisance; weak, but it weaves through nearby space.
+		zombie life[i] = 8 + player level
+		zombie speed[i] = 78 + player level
+		zombie armor[i] = 0
+		zombie contact damage[i] = 1
+	end
+	if zombie mutation[i] <> 0
+		if zombie mutation[i] == 1
+			// Mutated walker: aggressive bruiser.
+			zombie life[i] += 12
+			zombie speed[i] += 18
+			zombie contact damage[i] += 1
+		elsif zombie mutation[i] == 2
+			// Mutated feral: glass cannon.
+			zombie life[i] += 8
+			zombie speed[i] += 25
+			zombie contact damage[i] += 1
+		else
+			// Mutated heavy: armored tank.
+			zombie life[i] += 30
+			zombie speed[i] -= 6
+			zombie armor[i] += 2
+		end
+	end
+	if (random number (2)) == 0
+		zombie x[i] = 24
+		zombie direction[i] = 1
+	else
+		zombie x[i] = 616
+		zombie direction[i] = 0
+	end
+	zombie y[i] = 350 + random number (120)
+	zombie frame[i] = 0
+	zombie frame time[i] = 0
+	zombie hit time[i] = 0
+	zombie drop time[i] = 2500 + random number (2500)
+	zombie flight time[i] = random number (1000)
+end
+
+func player attack damage: int
+	return player damage + player damage boost
+end
+
+func player attack delay: int
+	def delay = player shot delay
+	if player rapid time > 0
+		delay -= 30
+		if delay < 25
+			delay = 25
+		end
+	end
+	return delay
+end
+
+func player movement speed: int
+	def speed = player speed
+	if player speed boost time > 0
+		speed += 50
+	end
+	if player cripple time > 0
+		speed /= 2
+		if speed < 1
+			speed = 1
+		end
+	end
+	return speed
+end
+
+func spawn pickup
+	def i = 0
+	while i < max pickups && pickup active[i] <> 0
+		++i
+	end
+	if i == max pickups
+		return
+	end
+	pickup active[i] = 1
+	def roll = random number (100)
+	if roll < 30
+		pickup type[i] = pickup health
+	elsif roll < 55
+		pickup type[i] = pickup damage
+	elsif roll < 70
+		pickup type[i] = pickup speed
+	elsif roll < 82
+		pickup type[i] = pickup rapid
+	else
+		pickup type[i] = pickup ammo
+	end
+	pickup x[i] = 40 + random number (560)
+	pickup y[i] = 350 + random number (110)
+	pickup time[i] = 15000
+	pickup pulse[i] = 0
+end
+
+func update pickups (elapsed: int)
+	def i = 0
+	def dx: int
+	def dy: int
+	if player poison time > 0
+		player poison time -= elapsed
+		player poison tick time -= elapsed
+		if player poison tick time <= 0
+			player poison tick time += 1000
+			player life -= 1
+			zombie_host_sound (2)
+			if player life <= 0
+				player game over = 1
+			end
+		end
+		if player poison time <= 0
+			player poison time = 0
+			player poison tick time = 0
+		end
+	end
+	if player cripple time > 0
+		player cripple time -= elapsed
+		if player cripple time <= 0
+			player cripple time = 0
+		end
+	end
+	if player damage boost time > 0
+		player damage boost time -= elapsed
+		if player damage boost time <= 0
+			player damage boost time = 0
+			player damage boost = 0
+		end
+	end
+	if player speed boost time > 0
+		player speed boost time -= elapsed
+		if player speed boost time <= 0
+			player speed boost time = 0
+		end
+	end
+	if player rapid time > 0
+		player rapid time -= elapsed
+		if player rapid time <= 0
+			player rapid time = 0
+		end
+	end
+	while i < max pickups
+		if pickup active[i] <> 0
+			pickup time[i] -= elapsed
+			pickup pulse[i] += elapsed
+			if pickup time[i] <= 0
+				pickup active[i] = 0
+			else
+				dx = absolute (pickup x[i] - player x)
+				dy = absolute (pickup y[i] - player y)
+				if dx < 24 && dy < 30
+					if pickup type[i] == pickup health
+						if player life < player life max
+							player life += 5
+							if player life > player life max
+								player life = player life max
+							end
+							pickup active[i] = 0
+							zombie_host_sound (3)
+						end
+					elsif pickup type[i] == pickup damage
+						player damage boost = 5
+						player damage boost time = 12000
+						pickup active[i] = 0
+						zombie_host_sound (3)
+					elsif pickup type[i] == pickup speed
+						player speed boost time = 12000
+						pickup active[i] = 0
+						zombie_host_sound (3)
+					elsif pickup type[i] == pickup rapid
+						player rapid time = 12000
+						pickup active[i] = 0
+						zombie_host_sound (3)
+					else
+						if player ammo < player ammo max
+							player ammo += 20
+							if player ammo > player ammo max
+								player ammo = player ammo max
+							end
+							pickup active[i] = 0
+							zombie_host_sound (3)
+						end
+					end
+				end
+			end
+		end
+		++i
+	end
+end
+
+func spawn cow pie (x: int, y: int)
+	def i = 0
+	while i < max cow pies && cow pie active[i] <> 0
+		++i
+	end
+	if i == max cow pies
+		return
+	end
+	cow pie active[i] = 1
+	cow pie x[i] = x
+	cow pie y[i] = y
+	cow pie time[i] = 10000
+	cow pie pulse[i] = 0
+end
+
+func update cow pies (elapsed: int)
+	def i = 0
+	def dx: int
+	def dy: int
+	while i < max cow pies
+		if cow pie active[i] <> 0
+			cow pie time[i] -= elapsed
+			cow pie pulse[i] += elapsed
+			if cow pie time[i] <= 0
+				cow pie active[i] = 0
+			else
+				dx = absolute (cow pie x[i] - player x)
+				dy = absolute (cow pie y[i] - player y)
+				if dx < 20 && dy < 18
+					player life -= 2
+					cow pie active[i] = 0
+					zombie_host_sound (2)
+					if player life <= 0
+						player game over = 1
+					end
+				end
+			end
+		end
+		++i
+	end
+end
+
+func spawn squirrel nut
+	def i = 0
+	while i < max squirrel nuts && squirrel nut active[i] <> 0
+		++i
+	end
+	if i == max squirrel nuts
+		return
+	end
+	squirrel nut active[i] = 1
+	squirrel nut x[i] = squirrel x
+	squirrel nut y[i] = squirrel y - 18
+	if random number (2) == 0
+		squirrel nut vx[i] = -75 - random number (45)
+	else
+		squirrel nut vx[i] = 75 + random number (45)
+	end
+	squirrel nut vy[i] = -70 - random number (55)
+	squirrel nut life[i] = 2600
+	squirrel nut pulse[i] = 0
+end
+
+func squirrel nut impact (impact x: int, impact y: int)
+	def i = 0
+	def dx: int
+	def dy: int
+	if absolute (player x - impact x) < 28 && absolute (player y - impact y) < 30
+		player life -= 1
+		zombie_host_sound (2)
+		if player life <= 0
+			player game over = 1
+		end
+	end
+	while i < max zombies
+		if zombie active[i] <> 0
+			dx = absolute (zombie x[i] - impact x)
+			dy = absolute (zombie y[i] - impact y)
+			if dx < 32 && dy < 32
+				zombie life[i] -= 2
+				zombie hit time[i] = 160
+				if zombie life[i] <= 0
+					zombie active[i] = 0
+					player score += 5
+				end
+			end
+		end
+		++i
+	end
+	if dog state == dog active && absolute (dog x - impact x) < 30 &&
+	   absolute (dog y - impact y) < 30
+		dog life -= 1
+		dog hit time = 160
+		if dog life <= 0
+			dog life = 0
+			dog state = dog retreating
+		end
+	end
+	if wolf active <> 0 && wolf vulnerable <> 0 && absolute (wolf x - impact x) < 34 &&
+	   absolute (wolf y - impact y) < 34
+		wolf life -= 1
+		wolf hit time = 160
+		if wolf life <= 0
+			wolf active = 0
+			player score += 100
+		end
+	end
+	i = 0
+	while i < max rescue pigs
+		if pig state[i] == pig field && absolute (pig x[i] - impact x) < 28 &&
+		   absolute (pig y[i] - impact y) < 30
+			pig life[i] -= 1
+			pig hit time[i] = 160
+			if pig life[i] <= 0
+				pig state[i] = pig lost
+			end
+		end
+		++i
+	end
+end
+
+func update squirrel (elapsed: int)
+	def i = 0
+	def dx: int
+	def dy: int
+	if squirrel active == 0
+		squirrel cooldown -= elapsed
+		if squirrel cooldown <= 0
+			squirrel active = 1
+			squirrel x = squirrel hole x
+			squirrel y = squirrel hole y
+			squirrel direction = random number (2)
+			squirrel frame = 0
+			squirrel frame time = 0
+			squirrel active time = 11000 + random number (5000)
+			squirrel nut time = 900
+		end
+		return
+	end
+	squirrel active time -= elapsed
+	squirrel frame time += elapsed
+	if squirrel frame time > 180
+		squirrel frame time -= 180
+		squirrel frame = (squirrel frame + 1) % 2
+	end
+	squirrel nut time -= elapsed
+	if squirrel nut time <= 0
+		spawn squirrel nut
+		squirrel nut time = 900 + random number (1300)
+	end
+	while i < max squirrel nuts
+		if squirrel nut active[i] <> 0
+			squirrel nut life[i] -= elapsed
+			squirrel nut pulse[i] += elapsed
+			squirrel nut x[i] += squirrel nut vx[i] * elapsed / 1000
+			squirrel nut y[i] += squirrel nut vy[i] * elapsed / 1000
+			squirrel nut vy[i] += 120 * elapsed / 1000
+			if squirrel nut life[i] <= 0 || squirrel nut y[i] > 475 ||
+			   squirrel nut x[i] < 0 || squirrel nut x[i] > 640
+				squirrel nut impact (squirrel nut x[i], squirrel nut y[i])
+				squirrel nut active[i] = 0
+			else
+				dx = absolute (squirrel nut x[i] - player x)
+				dy = absolute (squirrel nut y[i] - player y)
+				if dx < 20 && dy < 24
+					squirrel nut impact (squirrel nut x[i], squirrel nut y[i])
+					squirrel nut active[i] = 0
+				end
+			end
+		end
+		++i
+	end
+	if squirrel active time <= 0
+		squirrel active = 0
+		squirrel cooldown = 18000 + random number (10000)
+	end
+end
+
+func spawn rescue pigs
+	def i = 0
+	pig event started = 1
+	pig event time = 0
+	pig saved count = 0
+	pig carried index = -1
+	wolf summoned = 0
+	wolf vulnerable = 0
+	while i < max rescue pigs
+		pig state[i] = pig field
+		pig x[i] = 140 + random number (360)
+		pig y[i] = 350 + random number (110)
+		pig life[i] = 3
+		pig hit time[i] = 0
+		++i
+	end
+end
+
+func update rescue pigs (elapsed: int)
+	def i = 0
+	def j: int
+	def dx: int
+	def dy: int
+	def distance: int
+	def best distance: int
+	def threat x: int
+	def threat y: int
+	def step: int
+	def hostile: int
+	def terminal = 1
+	if pig event started == 0
+		return
+	end
+	while i < max rescue pigs
+		if pig hit time[i] > 0
+			pig hit time[i] -= elapsed
+			if pig hit time[i] < 0
+				pig hit time[i] = 0
+			end
+		end
+		if pig state[i] == pig field
+			if pig carried index < 0
+				dx = absolute (pig x[i] - player x)
+				dy = absolute (pig y[i] - player y)
+				if dx < 25 && dy < 30
+					pig state[i] = pig carried
+					pig carried index = i
+					zombie_host_sound (3)
+				end
+			end
+			if pig state[i] == pig field
+				terminal = 0
+				hostile = 0
+				best distance = 100000
+				j = 0
+				while j < max zombies
+					if zombie active[j] <> 0
+						distance = absolute (pig x[i] - zombie x[j]) + absolute (pig y[i] - zombie y[j])
+						if distance < best distance
+							best distance = distance
+							threat x = zombie x[j]
+							threat y = zombie y[j]
+							hostile = 1
+						end
+					end
+					++j
+				end
+				if wolf active <> 0
+					distance = absolute (pig x[i] - wolf x) + absolute (pig y[i] - wolf y)
+					if distance < best distance
+						best distance = distance
+						threat x = wolf x
+						threat y = wolf y
+						hostile = 1
+					end
+				end
+				if hostile == 0
+					threat x = player x
+					threat y = player y
+					step = 18 * elapsed / 1000
+				else
+					step = 75 * elapsed / 1000
+				end
+				if step < 1
+					step = 1
+				end
+				if pig x[i] < threat x
+					pig x[i] -= step
+				elsif pig x[i] > threat x
+					pig x[i] += step
+				end
+				if pig y[i] < threat y
+					pig y[i] -= step
+				elsif pig y[i] > threat y
+					pig y[i] += step
+				end
+				if pig x[i] < 30
+					pig x[i] = 30
+				elsif pig x[i] > 610
+					pig x[i] = 610
+				end
+				if pig y[i] < 340
+					pig y[i] = 340
+				elsif pig y[i] > 470
+					pig y[i] = 470
+				end
+			end
+		elsif pig state[i] == pig carried
+				terminal = 0
+			pig x[i] = player x
+			pig y[i] = player y - 70
+			if player x < barn x max && player y > barn y min
+				pig state[i] = pig saved
+				pig carried index = -1
+				pig saved count += 1
+				player score += 50
+				zombie_host_sound (3)
+				if pig saved count >= max rescue pigs
+					wolf vulnerable = 1
+				end
+			end
+		end
+		++i
+	end
+	// Once all three piglets have been saved or lost, let the current wolf
+	// finish its appearance and then arm a fresh rescue event.  This avoids
+	// the one-shot behavior while keeping the wolf's delayed arrival intact.
+	if terminal <> 0 && wolf summoned <> 0 && wolf active == 0
+		pig event started = 0
+		pig event time = 0
+		pig saved count = 0
+		pig carried index = -1
+		wolf summoned = 0
+	end
+end
+
+func spawn wolf
+	if wolf active <> 0
+		return
+	end
+	wolf active = 1
+	if (random number (2)) == 0
+		wolf x = -32
+		wolf direction = 1
+		wolf exit direction = 1
+	else
+		wolf x = 672
+		wolf direction = 0
+		wolf exit direction = 0
+	end
+	wolf y = 350 + random number (120)
+	wolf frame = 0
+	wolf frame time = 0
+	wolf time = max wolf time
+	wolf hit time = 0
+	wolf attack time = 0
+	wolf search time = 2500
+	wolf life = 140
+	wolf leaving = 0
+end
+
+func dog max health: int
+	if dog rank == 1
+		return 40
+	elsif dog rank == 2
+		return 65
+	elsif dog rank == 3
+		return 95
+	elsif dog rank == 4
+		return 130
+	end
+	return 170
+end
+
+func dog active duration: int
+	if dog rank == 1
+		return 12000
+	elsif dog rank == 2
+		return 18000
+	elsif dog rank == 3
+		return 24000
+	elsif dog rank == 4
+		return 30000
+	end
+	return 38000
+end
+
+func dog recovery duration: int
+	if dog rank == 1
+		return 22000
+	elsif dog rank == 2
+		return 16000
+	elsif dog rank == 3
+		return 10000
+	elsif dog rank == 4
+		return 8000
+	end
+	return 6000
+end
+
+func activate dog
+	dog state = dog active
+	if player direction == 1
+		dog x = player x - 34
+		dog direction = 0
+	else
+		dog x = player x + 34
+		dog direction = 1
+	end
+	dog y = player y
+	dog life = dog max health
+	dog active time = dog active duration
+	dog attack time = 0
+	dog hit time = 0
+end
+
+func update dog (elapsed: int)
+	def i = 0
+	def target = -1
+	def target x = player x
+	def target y = player y
+	def dx: int
+	def dy: int
+	def distance: int
+	def best distance = 100000
+	def step: int
+	if dog rank == 0
+		return
+	end
+	if dog hit time > 0
+		dog hit time -= elapsed
+		if dog hit time < 0
+			dog hit time = 0
+		end
+	end
+	if dog attack time > 0
+		dog attack time -= elapsed
+		if dog attack time < 0
+			dog attack time = 0
+		end
+	end
+	if dog state == dog cooldown
+		dog cooldown time -= elapsed
+		if dog cooldown time <= 0
+			activate dog
+		end
+		return
+	elsif dog state == dog retreating
+		step = 130 * elapsed / 1000
+		if step < 1
+			step = 1
+		end
+		if dog x < dog fence x
+			dog x += step
+			dog direction = 1
+		elsif dog x > dog fence x
+			dog x -= step
+			dog direction = 0
+		end
+		if dog y < dog fence y
+			dog y += step
+		elsif dog y > dog fence y
+			dog y -= step
+		end
+		if absolute (dog x - dog fence x) < 12 && absolute (dog y - dog fence y) < 18
+			dog x = dog fence x
+			dog y = dog fence y
+			dog state = dog cooldown
+			dog cooldown time = dog recovery duration
+		end
+		return
+	end
+	dog active time -= elapsed
+	if dog active time <= 0
+		dog state = dog retreating
+		return
+	end
+	while i < max zombies
+		if zombie active[i] <> 0
+			// The buddy protects its master instead of chasing a distant target.
+			distance = absolute (player x - zombie x[i]) + absolute (player y - zombie y[i])
+			if distance < best distance && distance < 300
+				best distance = distance
+				target = i
+				target x = zombie x[i]
+				target y = zombie y[i]
+			end
+		end
+		++i
+	end
+	if target < 0
+		target x = player x
+		target y = player y
+	end
+	step = 95 * elapsed / 1000
+	if step < 1
+		step = 1
+	end
+	if dog x < target x
+		dog x += step
+		dog direction = 1
+	elsif dog x > target x
+		dog x -= step
+		dog direction = 0
+	end
+	if dog y < target y
+		dog y += step
+	elsif dog y > target y
+		dog y -= step
+	end
+	dog frame time += elapsed
+	if dog frame time > 140
+		dog frame time -= 140
+		dog frame = (dog frame + 1) % 2
+	end
+	if target >= 0
+		dx = absolute (dog x - target x)
+		dy = absolute (dog y - target y)
+		if dx < 30 && dy < 38 && dog attack time == 0
+			dog attack time = 700
+			dog hit time = 100
+			zombie life[target] -= 8 + dog rank * 3
+			zombie_host_sound (2)
+			if zombie life[target] <= 0
+				zombie active[target] = 0
+				player score += 5
+				zombie_host_sound (1)
+			end
+		end
+	end
+end
+
+func update farm helpers (elapsed: int)
+	def i = 0
+	def step: int
+	def dx: int
+	def dy: int
+	def mower rank = upgrade rank (9)
+	def chipper rank = upgrade rank (4)
+	if mower rank > 0
+		if mower time > 0
+			mower time -= elapsed
+			step = (100 + mower rank * 15) * elapsed / 1000
+			if step < 1
+				step = 1
+			end
+			mower x += step
+			while i < max zombies
+				if zombie active[i] <> 0 && zombie type[i] <> 10
+					dx = absolute (zombie x[i] - mower x)
+					dy = absolute (zombie y[i] - mower y)
+					if dx < 48 && dy < 48 && zombie hit time[i] == 0
+						zombie life[i] -= 8 + mower rank * 4
+						zombie hit time[i] = 300
+						if zombie life[i] <= 0
+							zombie active[i] = 0
+							player score += 8
+						end
+					end
+				end
+				++i
+			end
+			if mower x > 690
+				mower time = 0
+				mower cooldown = 22000 - mower rank * 2000
+			end
+			if mower time <= 0 && mower cooldown <= 0
+				mower cooldown = 18000
+			end
+		else
+			mower cooldown -= elapsed
+			if mower cooldown <= 0
+				mower time = 3500 + mower rank * 500
+				mower x = 70
+				mower y = 445
+				mower direction = 1
+			end
+		end
+	end
+	if chipper rank > 0
+		if chipper time > 0
+			chipper time -= elapsed
+			chipper shot time -= elapsed
+			if chipper shot time <= 0
+				chipper shot time = 650 - chipper rank * 70
+				if chipper shot time < 250
+					chipper shot time = 250
+				end
+				i = 0
+				while i < max zombies
+					if zombie active[i] <> 0 && zombie type[i] == 10
+						dx = zombie x[i] - chipper x
+						dy = absolute (zombie y[i] - chipper y)
+						if dx > 0 && dx < 280 && dy < 140
+							zombie life[i] -= 8 + chipper rank * 4
+							zombie hit time[i] = 180
+							if zombie life[i] <= 0
+								zombie active[i] = 0
+								player score += 8
+							end
+						end
+					end
+					++i
+				end
+			end
+			if chipper time <= 0
+				chipper time = 0
+				chipper cooldown = 22000 - chipper rank * 1800
+			end
+		else
+			chipper cooldown -= elapsed
+			if chipper cooldown <= 0
+				chipper time = 4000 + chipper rank * 700
+				chipper shot time = 0
+			end
+		end
+	end
+end
+
+func update time stop (elapsed: int)
+	def rank = upgrade rank (5)
+	if rank == 0
+		return
+	end
+	if time stop time > 0
+		time stop time -= elapsed
+		if time stop time < 0
+			time stop time = 0
+		end
+	else
+		time stop cooldown -= elapsed
+		if time stop cooldown <= 0
+			time stop time = 800 + rank * 450
+			time stop cooldown = 25000 - rank * 2500
+			if time stop cooldown < 10000
+				time stop cooldown = 10000
+			end
+			zombie_host_sound (3)
+		end
+	end
+end
+
+func update wolf (elapsed: int)
+	def i = 0
+	def target zombie = -1
+	def target pig = -1
+	def target kind = 0
+	def target x = player x
+	def target y = player y
+	def dx: int
+	def dy: int
+	def distance: int
+	def best distance: int
+	def step: int
+	if wolf active == 0
+		return
+	end
+	if time stop time > 0
+		return
+	end
+	if wolf hit time > 0
+		wolf hit time -= elapsed
+		if wolf hit time < 0
+			wolf hit time = 0
+		end
+	end
+	if wolf attack time > 0
+		wolf attack time -= elapsed
+		if wolf attack time < 0
+			wolf attack time = 0
+		end
+	end
+	wolf time -= elapsed
+	if wolf time <= 1500
+		wolf leaving = 1
+	end
+	if wolf leaving <> 0
+		step = 120 * elapsed / 1000
+		if step < 1
+			step = 1
+		end
+		if wolf exit direction == 0
+			wolf x -= step
+			wolf direction = 0
+		else
+			wolf x += step
+			wolf direction = 1
+		end
+		if wolf x < -64 || wolf x > 704
+			wolf active = 0
+		end
+		return
+	end
+	if wolf search time > 0
+		wolf search time -= elapsed
+		if wolf search time < 0
+			wolf search time = 0
+		end
+		wolf frame time += elapsed
+		if wolf frame time > 140
+			wolf frame time -= 140
+			wolf frame = (wolf frame + 1) % 2
+		end
+		return
+	end
+	best distance = absolute (wolf x - player x) + absolute (wolf y - player y)
+	while i < max zombies
+		if zombie active[i] <> 0
+			distance = absolute (wolf x - zombie x[i]) + absolute (wolf y - zombie y[i])
+			if distance < best distance
+				best distance = distance
+				target zombie = i
+				target kind = 1
+				target x = zombie x[i]
+				target y = zombie y[i]
+			end
+		end
+		++i
+	end
+	i = 0
+	while i < max rescue pigs
+		if pig state[i] == pig field
+			distance = absolute (wolf x - pig x[i]) + absolute (wolf y - pig y[i])
+			if distance < best distance + 160
+				best distance = distance
+				target kind = 2
+				target pig = i
+				target zombie = -1
+				target x = pig x[i]
+				target y = pig y[i]
+			end
+		end
+		++i
+	end
+	step = 110 * elapsed / 1000
+	if step < 1
+		step = 1
+	end
+	if wolf x < target x
+		wolf x += step
+		wolf direction = 1
+	elsif wolf x > target x
+		wolf x -= step
+		wolf direction = 0
+	end
+	if wolf y < target y
+		wolf y += step
+	elsif wolf y > target y
+		wolf y -= step
+	end
+	wolf frame time += elapsed
+	if wolf frame time > 140
+		wolf frame time -= 140
+		wolf frame = (wolf frame + 1) % 2
+	end
+	dx = absolute (wolf x - target x)
+	dy = absolute (wolf y - target y)
+	if dx < 32 && dy < 42 && wolf attack time == 0
+		wolf attack time = 800
+		wolf hit time = 100
+		zombie_host_sound (2)
+		if target kind == 1
+			zombie life[target zombie] -= 20
+			if zombie life[target zombie] <= 0
+				zombie active[target zombie] = 0
+				player score += 10
+				zombie_host_sound (1)
+			end
+		elsif target kind == 2
+			pig life[target pig] -= 2
+			pig hit time[target pig] = 250
+			if pig life[target pig] <= 0
+				pig state[target pig] = pig lost
+			end
+		else
+			player life -= 3
+			if player life <= 0
+				player game over = 1
+			end
+		end
+	end
+end
+
+func fire bullet
+	def i = 0
+	def pistol = 0
+	def spread: int
+	def laser rank = upgrade rank (3)
+	def spread range: int
+	while i < max bullets && bullet active[i] <> 0
+		++i
+	end
+	if i == max bullets
+		return
+	end
+	bullet active[i] = 1
+	bullet x[i] = player x
+	bullet direction[i] = player direction
+	if player ammo > 0
+		player ammo -= 1
+		bullet damage[i] = player attack damage
+	else
+		// The pistol remains available, but is deliberately weaker and slower.
+		pistol = 1
+		bullet damage[i] = player attack damage / 2
+		if bullet damage[i] < 1
+			bullet damage[i] = 1
+		end
+	end
+	if laser rank > 0
+		bullet damage[i] += 1 + laser rank
+		spread range = 25 - laser rank * 3
+		if spread range < 9
+			spread range = 9
+		end
+		if random number (100) < 75 + laser rank * 4
+			spread = random number (spread range) - spread range / 2
+		else
+			spread = 60
+			if random number (2) == 0
+				spread = -60
+			end
+		end
+	else
+		if random number (100) < 72
+			spread = random number (25) - 12
+		else
+			spread = 60
+			if random number (2) == 0
+				spread = -60
+			end
+		end
+	end
+	bullet y[i] = player y + spread
+	if pistol <> 0
+		player shoot time = 650
+	end
+	zombie_host_sound (0)
+end
+
+func update bullets (elapsed: int)
+	def i = 0
+	def j: int
+	def dx: int
+	def dy: int
+	def inflicted: int
+	def target = -1
+	def best distance = 100000
+	while i < max bullets
+		if bullet active[i] <> 0
+			if bullet direction[i] == 0
+				bullet x[i] -= 260 * elapsed / 1000
+			else
+				bullet x[i] += 260 * elapsed / 1000
+			end
+			if bullet x[i] < 0
+				bullet active[i] = 0
+			elsif bullet x[i] > 640
+				bullet active[i] = 0
+			else
+					target = -1
+					best distance = 100000
+					j = 0
+					while j < max zombies
+						if zombie active[j] <> 0
+							dx = absolute (zombie x[j] - bullet x[i])
+							dy = absolute (zombie y[j] - bullet y[i])
+							if dx < 28 && dy < 42 && dx < best distance
+								target = j
+								best distance = dx
+							end
+						end
+						++j
+					end
+					if target >= 0
+						inflicted = bullet damage[i] - zombie armor[target]
+						if inflicted < 1
+							inflicted = 1
+						end
+						zombie life[target] -= inflicted
+						zombie hit time[target] = 100
+						bullet active[i] = 0
+						if zombie life[target] <= 0
+							zombie active[target] = 0
+							player score += 10
+							zombie_host_sound (1)
+						end
+					end
+				if bullet active[i] <> 0 && wolf active <> 0 && wolf vulnerable <> 0
+					dx = absolute (wolf x - bullet x[i])
+					dy = absolute (wolf y - bullet y[i])
+					if dx < 34 && dy < 42
+						inflicted = bullet damage[i]
+						wolf life -= inflicted
+						wolf hit time = 100
+						bullet active[i] = 0
+						if wolf life <= 0
+							wolf active = 0
+							wolf summoned = 1
+							player score += 100
+							zombie_host_sound (1)
+						end
+					end
+				end
+			end
+		end
+		++i
+	end
+end
+
+func update zombies (elapsed: int)
+	def i = 0
+	def j: int
+	def dx: int
+	def dy: int
+	def step: int
+	def wave: int
+	def weave: int
+	def target x: int
+	def target y: int
+	def target pig: int
+	def target kind: int
+	def player distance: int
+	def wolf distance: int
+	def dog distance: int
+	def distance: int
+	def target distance: int
+	if time stop time > 0
+		return
+	end
+	while i < max zombies
+		if zombie active[i] <> 0
+			target x = player x
+			target y = player y
+			target pig = -1
+			target kind = 0
+			player distance = absolute (zombie x[i] - player x) + absolute (zombie y[i] - player y)
+			target distance = player distance
+			if wolf active <> 0
+				wolf distance = absolute (zombie x[i] - wolf x) + absolute (zombie y[i] - wolf y)
+				if wolf distance < target distance
+					target distance = wolf distance
+					target x = wolf x
+					target y = wolf y
+					target kind = 1
+				end
+			end
+			if dog state == dog active
+				dog distance = absolute (zombie x[i] - dog x) + absolute (zombie y[i] - dog y)
+				if dog distance < target distance
+					target distance = dog distance
+					target x = dog x
+					target y = dog y
+					target kind = 3
+				end
+			end
+			if zombie pig interest[i] <> 0
+				j = 0
+				while j < max rescue pigs
+					if pig state[j] == pig field
+						distance = absolute (zombie x[i] - pig x[j]) + absolute (zombie y[i] - pig y[j])
+						if distance < target distance
+							target distance = distance
+							target x = pig x[j]
+							target y = pig y[j]
+							target pig = j
+							target kind = 2
+						end
+					end
+					++j
+				end
+				end
+		if zombie x[i] < target x
+			// The source zombie sheet faces left; direction 1 is right-facing.
+			zombie direction[i] = 1
+		elsif zombie x[i] > target x
+			zombie direction[i] = 0
+		end
+			if zombie type[i] == 7
+				zombie drop time[i] -= elapsed
+				if zombie drop time[i] <= 0
+					if zombie direction[i] == 1
+						spawn cow pie (zombie x[i] - 30, zombie y[i])
+					else
+						spawn cow pie (zombie x[i] + 30, zombie y[i])
+					end
+					zombie drop time[i] = 5000 + random number (5000)
+				end
+			end
+			if zombie type[i] == 10
+				zombie flight time[i] += elapsed
+			end
+			if zombie hit time[i] > 0
+				zombie hit time[i] -= elapsed
+				if zombie hit time[i] < 0
+					zombie hit time[i] = 0
+				end
+			else
+				step = zombie speed[i] * elapsed / 1000
+				if step < 1
+					step = 1
+				end
+				if zombie type[i] == 10
+					// Crows search in a repeating, uneven vertical weave while
+					// drifting toward the commando's area.
+					wave = (zombie flight time[i] / 180) % 12
+					if wave < 6
+						weave = wave - 3
+					else
+						weave = 9 - wave
+					end
+					target y = 395 + weave * 14
+					if zombie x[i] < target x
+						zombie x[i] += step
+					elsif zombie x[i] > target x
+						zombie x[i] -= step
+					end
+					if zombie y[i] < target y
+						zombie y[i] += step
+					elsif zombie y[i] > target y
+						zombie y[i] -= step
+					end
+				else
+					if zombie x[i] < target x
+						zombie x[i] += step
+					elsif zombie x[i] > target x
+						zombie x[i] -= step
+					end
+					if zombie y[i] < target y
+						zombie y[i] += step
+					elsif zombie y[i] > target y
+						zombie y[i] -= step
+					end
+				end
+			end
+			zombie frame time[i] += elapsed
+			if zombie frame time[i] > 150
+				zombie frame time[i] -= 150
+				zombie frame[i] = (zombie frame[i] + 1) % 2
+			end
+			dx = absolute (zombie x[i] - target x)
+			dy = absolute (zombie y[i] - target y)
+			if dx < 28 && dy < 42 && zombie hit time[i] == 0
+				zombie hit time[i] = 350
+				zombie_host_sound (2)
+				if target kind == 0
+					player life -= zombie contact damage[i]
+					if zombie mutation[i] == 2
+						player poison time = 6000
+						player poison tick time = 1000
+					elsif zombie mutation[i] == 3
+						player cripple time = 5000
+					end
+					if player life <= 0
+						player game over = 1
+					end
+				elsif target kind == 2
+					pig life[target pig] -= 1
+					pig hit time[target pig] = 250
+					zombie_host_sound (2)
+					if pig life[target pig] <= 0
+						pig state[target pig] = pig lost
+					end
+				elsif target kind == 3
+					dog life -= zombie contact damage[i]
+					dog hit time = 250
+					if dog life <= 0
+						dog life = 0
+						dog state = dog retreating
+					end
+				end
+			end
+		end
+		++i
+	end
+end
+
+func upgrade code (selection: int): dword
+	if selection == 0
+		return 2:d
+	elsif selection == 1
+		return 4:d
+	elsif selection == 2
+		return 8:d
+	elsif selection == 3
+		return 16:d
+	elsif selection == 4
+		return 32:d
+	elsif selection == 5
+		return 64:d
+	elsif selection == 6
+		return 128:d
+	elsif selection == 7
+		return 256:d
+	elsif selection == 8
+		return 512:d
+	end
+	return 1:d
+end
+
+func upgrade max rank (selection: int): int
+	// Every menu entry has a meaningful five-rank progression. Utility upgrades
+	// improve their duration, cadence, accuracy, or output at each rank.
+	if selection == 0 || selection == 1 || selection == 2 || selection == 3 ||
+	   selection == 4 || selection == 5 || selection == 6 || selection == 7 ||
+	   selection == 8 || selection == 9
+		return 5
+	end
+	return 1
+end
+
+func upgrade rank (selection: int): int
+	return ((upgrade ranks >> (selection * 3)) & 7:d):int
+end
+
+func upgrades remain: int
+	def i = 0
+	while i < max upgrades
+		if upgrade rank (i) < upgrade max rank (i)
+			return 1
+		end
+		++i
+	end
+	return 0
+end
+
+func apply upgrade
+	if upgrade selection == 0
+		player speed += 35
+	elsif upgrade selection == 1
+		player ammo max += 20
+		player ammo += 20
+	elsif upgrade selection == 2
+		if player shot delay > 40
+			player shot delay -= 10
+		end
+	elsif upgrade selection == 3
+		// Laser Aim's accuracy and damage are applied when each round is fired.
+	elsif upgrade selection == 4
+		chipper cooldown = 1000
+	elsif upgrade selection == 5
+		time stop cooldown = 1000
+	elsif upgrade selection == 6
+		player life max += 10
+		player life += 10
+	elsif upgrade selection == 8
+		player damage += 5
+	elsif upgrade selection == 9
+		mower cooldown = 1000
+	end
+	upgrade ranks += (1:d << (upgrade selection * 3))
+	if upgrade selection == 7
+		dog rank = upgrade rank (7)
+		if dog state == dog inactive
+			activate dog
+		elsif dog state == dog active
+			dog life = dog max health
+			dog active time = dog active duration
+		end
+	end
+	// Keep the legacy ownership bit available to the host/menu, but rank-aware
+	// behavior is driven from upgrade ranks below.
+	upgrade mask |= upgrade code (upgrade selection)
+	upgrade pending = 0
+	upgrade menu = 0
+end
+
+func update upgrade (keys: dword)
+	if ((keys & key b) <> 0 && (last keys & key b) == 0) ||
+	   ((keys & key start) <> 0 && (last keys & key start) == 0)
+		upgrade menu = 0
+		return
+	end
+	if (keys & key up) <> 0 && (last keys & key up) == 0
+		upgrade selection -= 1
+		if upgrade selection < 0
+			upgrade selection = 0
+		end
+	end
+	if (keys & key down) <> 0 && (last keys & key down) == 0
+		upgrade selection += 1
+		if upgrade selection >= max upgrades
+			upgrade selection = max upgrades - 1
+		end
+	end
+	if (keys & key left) <> 0 && (last keys & key left) == 0
+		if upgrade selection >= 5
+			upgrade selection -= 5
+		end
+	end
+	if (keys & key right) <> 0 && (last keys & key right) == 0
+		if upgrade selection < 5
+			upgrade selection += 5
+		end
+	end
+	if (keys & key a) <> 0 && (last keys & key a) == 0
+		if upgrade rank (upgrade selection) < upgrade max rank (upgrade selection)
+			apply upgrade
+		end
+	end
+end
+
+func update player (keys: dword, elapsed: int)
+	def dx = 0
+	def dy = 0
+	def move speed = player movement speed
+	player moving = 0
+	if (keys & key left) <> 0
+		dx -= move speed * elapsed / 1000
+		player direction = 0
+		player moving = 1
+	end
+	if (keys & key right) <> 0
+		dx += move speed * elapsed / 1000
+		player direction = 1
+		player moving = 1
+	end
+	if (keys & key up) <> 0
+		dy -= move speed * elapsed / 1000
+		player moving = 1
+	end
+	if (keys & key down) <> 0
+		dy += move speed * elapsed / 1000
+		player moving = 1
+	end
+	player x += dx
+	player y += dy
+	if player x < 24
+		player x = 24
+	end
+	if player x > 616
+		player x = 616
+	end
+	if player y < 327
+		player y = 327
+	end
+	if player y > 470
+		player y = 470
+	end
+	if (keys & key a) <> 0 && player shoot time <= 0
+		fire bullet
+		if player shoot time <= 0
+			player shoot time = player attack delay
+		end
+	end
+	if player shoot time > 0
+		player shoot time -= elapsed
+	end
+	player frame time += elapsed
+	if player frame time > 100
+		player frame time -= 100
+		if player moving <> 0
+			player frame = (player frame + 1) % 8
+		else
+			player frame = (player frame + 1) % 3
+		end
+	end
+end
+
+func laser stop x: int
+	def i = 0
+	def stop = 640
+	def distance y: int
+	if player direction == 0
+		stop = 0
+	end
+	while i < max zombies
+		if zombie active[i] <> 0
+			distance y = absolute (zombie y[i] - player y)
+			if distance y < 45
+				if player direction == 0
+					if zombie x[i] < player x && zombie x[i] > stop
+						stop = zombie x[i]
+					end
+				else
+					if zombie x[i] > player x && zombie x[i] < stop
+						stop = zombie x[i]
+					end
+				end
+			end
+		end
+		++i
+	end
+	if wolf active <> 0 && absolute (wolf y - player y) < 45
+		if player direction == 0
+			if wolf x < player x && wolf x > stop
+				stop = wolf x
+			end
+		else
+			if wolf x > player x && wolf x < stop
+				stop = wolf x
+			end
+		end
+	end
+	return stop
+end
+
+func draw game
+	def i = 0
+	def living = 0
+	def player state = 0
+	def hit = 0
+	def status damage = 0
+	def status poison = 0
+	def status cripple = 0
+	def status speed = 0
+	def status rapid = 0
+	def pig carried draw = 0
+	def laser end x = 0
+	def night = (day time / 30000) % 2
+	if player damage boost time > 0
+		status damage = 1
+	end
+	if player poison time > 0
+		status poison = 1
+	end
+	if player cripple time > 0
+		status cripple = 1
+	end
+	if player speed boost time > 0
+		status speed = 1
+	end
+	if player rapid time > 0
+		status rapid = 1
+	end
+	if player shoot time > 0
+		player state = 2
+	elsif player moving <> 0
+		player state = 1
+	end
+	zombie_host_background (night)
+	if upgrade rank (3) > 0
+		laser end x = laser stop x
+		zombie_host_laser (player x, player y, player direction, laser end x)
+	end
+	i = 0
+	while i < max pickups
+		if pickup active[i] <> 0
+			zombie_host_pickup (pickup type[i], pickup x[i], pickup y[i], (pickup pulse[i] / 250) % 2)
+		end
+		++i
+	end
+	i = 0
+	while i < max cow pies
+		if cow pie active[i] <> 0
+			zombie_host_cow_pie (cow pie x[i], cow pie y[i], (cow pie pulse[i] / 250) % 2)
+		end
+		++i
+	end
+	if chipper time > 0
+		zombie_host_chipper (chipper x, chipper y, chipper direction)
+	end
+	if mower time > 0
+		zombie_host_mower (mower x, mower y, mower direction)
+	end
+	if squirrel active <> 0
+		zombie_host_squirrel (squirrel x, squirrel y, squirrel frame,
+			squirrel direction)
+	end
+	i = 0
+	while i < max squirrel nuts
+		if squirrel nut active[i] <> 0
+			zombie_host_bad_nut (squirrel nut x[i], squirrel nut y[i],
+				(squirrel nut pulse[i] / 180) % 2)
+		end
+		++i
+	end
+	i = 0
+	while i < max rescue pigs
+		if pig state[i] == pig field || pig state[i] == pig carried
+			hit = 0
+			if pig hit time[i] > 0
+				hit = 1
+			end
+			pig carried draw = 0
+			if pig state[i] == pig carried
+				pig carried draw = 1
+			end
+			zombie_host_pig (pig x[i], pig y[i], pig carried draw, hit)
+		end
+		++i
+	end
+	// Match the original painter's algorithm: objects farther up-field
+	// render first, then the player, then objects nearer the camera.
+	i = 0
+	while i < max zombies
+		if zombie active[i] <> 0 && zombie y[i] < player y
+			++living
+			hit = 0
+			if zombie hit time[i] > 0
+				hit = 1
+			end
+			zombie_host_zombie (zombie type[i], zombie mutation[i], zombie x[i], zombie y[i], zombie frame[i], 0, hit, zombie direction[i])
+		end
+		++i
+	end
+	if wolf active <> 0 && wolf y < player y
+		hit = 0
+		if wolf hit time > 0
+			hit = 1
+		end
+		zombie_host_wolf (wolf x, wolf y, wolf frame, wolf direction, hit)
+	end
+	if dog state <> dog inactive && dog y < player y
+		hit = 0
+		if dog hit time > 0
+			hit = 1
+		end
+		zombie_host_dog (dog x, dog y, dog frame, dog direction,
+			dog life, dog max health, hit)
+	end
+	zombie_host_player (player x, player y, player frame, player direction, player state)
+	i = 0
+	while i < max zombies
+		if zombie active[i] <> 0 && zombie y[i] >= player y
+			++living
+			hit = 0
+			if zombie hit time[i] > 0
+				hit = 1
+			end
+			zombie_host_zombie (zombie type[i], zombie mutation[i], zombie x[i], zombie y[i], zombie frame[i], 0, hit, zombie direction[i])
+		end
+		++i
+	end
+	if wolf active <> 0 && wolf y >= player y
+		hit = 0
+		if wolf hit time > 0
+			hit = 1
+		end
+		zombie_host_wolf (wolf x, wolf y, wolf frame, wolf direction, hit)
+	end
+	if dog state <> dog inactive && dog y >= player y
+		hit = 0
+		if dog hit time > 0
+			hit = 1
+		end
+		zombie_host_dog (dog x, dog y, dog frame, dog direction,
+			dog life, dog max health, hit)
+	end
+	zombie_host_player_status (player x, player y, status damage,
+		status poison, status cripple, status speed, status rapid)
+	i = 0
+	while i < max bullets
+		if bullet active[i] <> 0
+			zombie_host_bullet (bullet x[i], bullet y[i], bullet direction[i])
+		end
+		++i
+	end
+	zombie_host_hud (player score, player life, player level, night, living,
+		pig event started, pig saved count, player ammo, player ammo max)
+	if upgrade menu <> 0
+		zombie_host_upgrade (upgrade selection, upgrade mask, upgrade ranks)
+	end
+	if player game over <> 0
+		zombie_host_game_over (player score)
+	end
+end
+
+public [name="c"] func main (argc: int, argv: [] string)
+	def running = 1
+	def keys: dword
+	def now: dword
+	def last: dword
+	def elapsed: int
+	if zombie_host_init (0) <> 0
+		return 1
+	end
+	reset game
+	last = zombie_host_time_ms (0)
+	while running <> 0
+		keys = zombie_host_keys (0)
+		if (keys & emergency) == emergency
+			running = 0
+		else
+			now = zombie_host_time_ms (0)
+			elapsed = (now - last):int
+			last = now
+			if elapsed < 1
+				elapsed = 1
+			end
+			if elapsed > 50
+				elapsed = 50
+			end
+			if player game over <> 0
+				if (keys & key start) <> 0 && (last keys & key start) == 0
+					reset game
+				end
+		elsif upgrade menu <> 0
+				update upgrade (keys)
+		elsif paused <> 0
+			if (keys & key start) <> 0 && (last keys & key start) == 0
+				paused = 0
+			end
+			else
+			if (keys & key start) <> 0 && (last keys & key start) == 0
+				if upgrade pending <> 0
+					upgrade menu = 1
+				else
+					paused = 1
+				end
+				else
+					update player (keys, elapsed)
+					update bullets (elapsed)
+					if pig event started == 0
+						pig event time += elapsed
+						if pig event time > 24000
+							spawn rescue pigs
+						end
+					end
+					update rescue pigs (elapsed)
+					update dog (elapsed)
+					update farm helpers (elapsed)
+					update time stop (elapsed)
+					update squirrel (elapsed)
+					if pig event started <> 0 && wolf summoned == 0 && wolf active == 0
+						wolf spawn time += elapsed
+						if wolf spawn time > 12000
+							wolf spawn time = 0
+							spawn wolf
+							wolf summoned = 1
+						end
+					end
+					update wolf (elapsed)
+					update zombies (elapsed)
+					update cow pies (elapsed)
+					update pickups (elapsed)
+					day time += elapsed
+					spawn time += elapsed
+					if spawn time > spawn interval
+						spawn time -= spawn interval
+						spawn zombie
+						if spawn interval > 500
+							spawn interval -= 10
+						end
+					end
+					pickup spawn time += elapsed
+					if pickup spawn time > pickup spawn interval
+						pickup spawn time -= pickup spawn interval
+						spawn pickup
+						pickup spawn interval = 11000 + random number (9000)
+					end
+					if player score >= player next level && upgrade pending == 0
+						player level += 1
+						player next level += 400 + player level * 125
+						if upgrades remain <> 0
+							upgrade pending = 1
+							upgrade menu = 1
+						end
+					end
+				end
+			end
+			draw game
+			if paused <> 0
+				zombie_host_pause (0)
+			end
+			zombie_host_present (0)
+			zombie_host_audio_pump (0)
+			zombie_host_sleep (16)
+		end
+		last keys = keys
+	end
+	zombie_host_deinit (0)
+	return 0
+end

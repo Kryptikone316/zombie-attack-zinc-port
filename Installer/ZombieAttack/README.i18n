@@ -1,0 +1,6 @@
+Localisation is in gettext format, stored in i18n directory.
+for update localisation you should:
+
+ run msgs-update.sh
+ fix langauge files
+ run msgs-compile.sh

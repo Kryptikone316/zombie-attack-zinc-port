@@ -1,0 +1,9 @@
+Game data is stored in Data directory. Game could open this files, but
+distribution version of this game uses gzip compression for files. 
+For compressing this files you could use pack.sh script from Data directory.
+This scrip will work only on Linux shell or compatible 
+(msys, cygwin for windows). After this operation files has changed extensions:
+
+bmp => gzb
+wav => gzw
+

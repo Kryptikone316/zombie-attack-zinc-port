@@ -1,0 +1,138 @@
+# Zombie Attack mode and change log
+
+This file is the working record of differences between the supplied original
+Zombie Attack source and the H.OS Zinc modes. The original source remains
+under `Installer/ZombieAttack/` and is never edited by the port.
+
+## Mode contract
+
+| Mode | Contract | Status |
+| --- | --- | --- |
+| Classic | Preserve the supplied game's rules, upgrade model, timing, and one-time upgrade flags. | In progress |
+| Enhanced | Preserve the original as a baseline while adding bounded ranked stat upgrades and optional configuration knobs. | In progress |
+
+## Recorded differences
+
+| Area | Original behavior | Enhanced behavior | Classic requirement |
+| --- | --- | --- | --- |
+| Platform | SDL 1.2 desktop executable | Zinc game logic with a small H.OS C ABI host | H.OS rendering must not alter game rules |
+| Display | 640x480, 8-bit SDL surface | 640x480 RGB565 software framebuffer presented by `hwdisp` | Same logical viewport |
+| Input | Keyboard events | SF3500 `joykey`; D-pad/A/B/Start/Select mapping | Map controls without changing rules |
+| Exit | SDL quit / escape path | Select+Start emergency exit | Preserve safe return path |
+| Bullets | Original red 6x3 directional sheet | Finite rifle ammunition, slower pistol fallback, cooldown, bounded spread, nearest-target collision, and Laser Aim accuracy/damage assistance | Match original collision model |
+| Upgrades | Ten one-time flags; no rank system | All ten Enhanced choices have five meaningful ranks; packed rank state remains Zinc-side | Ten one-time flags |
+| Upgrade menu | Blocking level-up menu | Threshold-triggered menu; B/Start cancel; owned ranks disabled | Preserve original selection semantics where possible |
+| Audio | SDL mixed WAV channels | H.OS boundary; generated tones in current baseline | Original WAV behavior is a separate fidelity task |
+| Enemies | Three base zombie types with shared life behavior | Typed zombie, farm-animal, and aerial crow profiles, player-level scaling, armor, contact damage, rare mutations, and status effects | Preserve original three-type behavior |
+| Pickups | None | Rare weighted health, damage, speed, rapid-fire, and ammo-crate pickups plus cow-pie hazards with farm-themed sprites | No pickups |
+
+## Enhanced rank policy
+
+All ten Enhanced upgrades now have five meaningful ranks:
+
+- Fast Walk, More Shots, Fast Shoot, More Life, and More Damage improve player
+  statistics at each rank;
+- Laser Aim improves shot accuracy and bonus damage at each rank;
+- Wood Chipper and Lawn Mower improve support duration, cadence, and damage;
+- Time Stop increases freeze duration while shortening its cooldown;
+- Beagle Buddy improves health, active duration, attack strength, and recovery.
+
+The rank count is stored in a packed Zinc dword so the menu can display
+current/max ranks without adding a platform-sensitive ABI structure.
+
+## Update entries
+
+### 2026-11-26 — Enhanced ranked-upgrade foundation
+
+- Added packed per-upgrade rank state to Enhanced mode.
+- Added caps and threshold progression for repeatable stat upgrades.
+- Kept utility upgrades one-time and visible as owned/disabled.
+- Added this mode/difference log as the source of truth for future Classic vs
+  Enhanced work.
+
+### 2026-11-26 — H.OS gameplay corrections
+
+- Restored the original red bullet asset in both directions.
+- Corrected bullet collision to use the battlefield Y coordinate.
+- Added Y-based foreground/background sprite ordering.
+- Removed free Start-key upgrades; offers are score-threshold gated.
+
+### 2026-11-26 — Enhanced enemy variation and pickups
+
+- Added walker, feral, and heavy/tank stat profiles.
+- Added rare type-aware mutations with altered life, speed, armor, and contact
+  damage; mutation tinting makes them distinguishable on the battlefield.
+- Added diseased/zombified farm animals: fast chickens, bruising pigs, sturdy
+  sheep, mobile goats, cow tanks, uncommon llamas, and exceedingly rare
+  unicorn elites. Sheep, goats, and llamas have separate silhouettes and stat
+  profiles between the pig and cow tiers.
+- Reworked every farm-animal sprite to read as undead at a glance, using
+  sickly coloration, darkened faces, red eyes, and visible wounds. The original
+  zombie sprite remains the visual basis for the humanoid enemy classes.
+- Added mutation-driven poison damage-over-time and cripple movement effects,
+  with status icons above the commando.
+
+### 2026-11-26 — Enemy facing and render stability
+
+- Added per-enemy facing so enemies entering from the left mirror the right-side
+  spawn presentation and enemies turn toward the commando as they approach.
+- Fixed the painter's-algorithm loop to reset after pickup rendering; the old
+  loop skipped zombie slots 0–2 whenever those enemies were above the player,
+  producing apparent blinking or disappearance.
+
+### 2026-11-26 — Laser Aim visual guide
+
+- Added a thin light-red laser line extending from the commando toward the
+  current facing direction when Laser Aim is owned.
+- Kept Laser Aim visual-only; projectile collision and damage rules are not
+  changed by the guide.
+- Added limited health and temporary damage-boost pickups.
+- Added farm-themed 24×24 palette sprites: a barn health pickup and pitchfork
+  damage pickup.
+- Added temporary Speed Boost and Rapid Fire pickups aligned with the ranked
+  Fast Walk and Fast Shoot upgrade paths. Pickup rarity is weighted to 40%
+  health, 30% damage, 20% speed, and 10% rapid fire.
+- Added capped, temporary cow-pie land-mines. Cows periodically leave a pie
+  behind them; contact deals 2 damage and consumes the hazard.
+- Added rare zombie crows with a two-frame wing animation and irregular
+  vertical weaving. Crows are weak nuisance enemies that create a moving area
+  hazard without becoming a full tank threat.
+- Added a three-rank Beagle Buddy Enhanced upgrade. Each rank increases the
+  dog's health, active time, attack strength, and recovery cadence; damage can
+  send it retreating to the broken-fence position until it recovers.
+- Added the three-pig rescue event: piglets flee hostile enemies strongly and
+  the commando lightly, can be carried one at a time to the barn, and display
+  a saved counter. The Big Bad Wolf arrives after a search delay, prioritizes
+  piglets, remains invulnerable until all three are saved, and can then be
+  defeated by gunfire.
+
+### 2026-11-27 — Enhanced combat, pacing, and support systems
+
+- Laser Aim now stops at the first aligned target, modestly narrows shot spread,
+  and adds a small damage bonus; ordinary fire still misses occasionally.
+- Added rifle ammunition, ammo-crate replenishment, a reload/cooldown between
+  shots, and a weak single-shot pistol fallback when the rifle is empty.
+- Corrected bullet selection to damage the nearest intersected target rather
+  than whichever enemy happened to occupy the first array slot.
+- Replaced doubling level thresholds with an unbounded escalating threshold;
+  elite, llama, unicorn, and crow frequency increases with level.
+- Start now pauses/resumes gameplay; Select+Start remains the emergency exit.
+- Beagle Buddy protects the nearest threats to the commando, retreats behind
+  the broken fence at zero health, uses a subdued health bar, and returns after
+  its rank-scaled recovery period.
+- The pig rescue sequence now re-arms after the current wolf leaves, allowing
+  the “the piglets got loose again” event to recur.
+- Added visible Wood Chipper and Lawn Mower support upgrades. The mower clears
+  ground enemies; the chipper periodically attacks airborne crows.
+- Converted every upgrade entry to a five-rank progression with a measurable
+  effect per rank; Time Stop now periodically freezes hostile zombies and the
+  wolf instead of being an inert menu choice.
+
+### 2026-11-27 — Neutral tree squirrel and HUD readability
+
+- Added a recurring neutral squirrel that emerges beside the tree hole, tosses
+  cracked bad nuts, and retreats after a short visit. Nuts lightly affect
+  nearby player, enemies, dog, wolf, and rescue piglets; the squirrel itself
+  is never a target and cannot be damaged.
+- Enlarged the primary HUD text, gave it dedicated spacing, and added compact
+  sun/day and crescent-moon/night indicators to prevent text collisions.

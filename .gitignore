@@ -1,0 +1,8 @@
+# Reproducible local build and deployment output
+/zinc/build/
+/zinc/dist/
+
+# Legacy checkout metadata and distribution archives
+**/.svn/
+**/*.rpm
+**/*.tar.gz

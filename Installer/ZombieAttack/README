@@ -1,0 +1,53 @@
+===============================================================================
+
+                     Zombie Attack source code documentation
+			        
+                 This source code should be managed in Eclipse 3.4+
+
+===============================================================================
+
+How to setup Eclipse for this project?
+--------------------------------------
+
+1. First you must have configured Eclipse enviroment.
+   Configuration of Eclipse on different platform is task for you,
+   go to http://www.eclipse.org/.
+
+2. In Eclipse you could open this project by 
+   "File->Import->General->Existing projects into workspace".
+
+3. After this you must setup couple of things, like 
+   "Build Configuration" propertly for your platform.
+   You could do this throught "Project->Build Configuration->Set Active",
+   and choosing Linux or Windows. 
+   
+4. Now you could build the project by "Project->Build All" or "Ctrl+B"
+
+5. Last thing is setup run arguments. Go to "Run->Run Configurations..." 
+   and double click on "Local C/C++ Application". Select newly created
+   run configuration and go to the "Arguments" tab. Paste this to 
+   the "Program arguments" text field:
+	-window
+	-fps
+	-datadir ${workspace_loc:AtakZombie}/Data
+	-localedir ${workspace_loc:AtakZombie}/i18n
+
+6. Now you could run program "Run->Run" or "Ctrl+F11".
+
+
+File names notation
+-------------------
+
+Most of the files have prefixes. This prefixes describe role of the 
+content's objects:
+
+Prefix:    Description:
+l_         Layers are updated and draw on the screen in main loop. 
+m_         Managers are loops to control group of layers in the main loop
+s_         Subsystems take care of some elements of game, 
+           like playing audio buffers.
+
+Every layers has his own API and manager should take every layer differently. 
+Pair of manager and layers uses subsystems to make some stuff like render fonts
+or play sound.            
+
