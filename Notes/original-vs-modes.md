@@ -305,5 +305,8 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Refreshed the lawn mower and wood chipper equipment sprites to match the
   same farm-themed pixel-art treatment. All regenerated multi-frame BMPs were
   quantized to the 8-bit palette format required by the H.OS loader.
+- Corrected the generated BMPs to use uncompressed 8-bit palette data. The
+  first generated sheets were RLE8-compressed, which the host loader rejects
+  during startup even though the MIPS executable itself compiles successfully.
 - Added a rare sheep-specific counting joke: `IF YOU GUYS COUNT YOURSELVES /
   DO YOU FALL ASLEEP? GUESS NOT.`.
