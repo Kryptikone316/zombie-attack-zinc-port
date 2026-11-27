@@ -136,3 +136,12 @@ current/max ranks without adding a platform-sensitive ABI structure.
   is never a target and cannot be damaged.
 - Enlarged the primary HUD text, gave it dedicated spacing, and added compact
   sun/day and crescent-moon/night indicators to prevent text collisions.
+
+### 2026-11-27 — Piglet delivery and firearm spread correction
+
+- Widened and lowered the barn entrance hand-off zone so carried piglets can be
+  delivered without pixel-perfect positioning at the far-left edge.
+- Tightened normal rifle grouping from a broad ±12-pixel spread to a small
+  ±4-pixel grouping, while retaining a low-probability wide miss.
+- Tightened Laser Aim grouping further and raised its accuracy without making
+  every shot guaranteed to hit.

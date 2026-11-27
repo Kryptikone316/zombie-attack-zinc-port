@@ -58,8 +58,11 @@ equ pig field = 1
 equ pig carried = 2
 equ pig saved = 3
 equ pig lost = 4
-equ barn x max = 110
-equ barn y min = 380
+// The visible barn door is narrower than the player's collision footprint.
+// Use a forgiving entrance zone so a carried piglet can actually be handed
+// off without requiring pixel-perfect positioning at the extreme left edge.
+equ barn x max = 155
+equ barn y min = 360
 equ dog inactive = 0
 equ dog active = 1
 equ dog retreating = 2
@@ -965,7 +968,7 @@ func update rescue pigs (elapsed: int)
 				terminal = 0
 			pig x[i] = player x
 			pig y[i] = player y - 70
-			if player x < barn x max && player y > barn y min
+			if player x <= barn x max && player y >= barn y min
 				pig state[i] = pig saved
 				pig carried index = -1
 				pig saved count += 1
@@ -1465,11 +1468,14 @@ func fire bullet
 	end
 	if laser rank > 0
 		bullet damage[i] += 1 + laser rank
-		spread range = 25 - laser rank * 3
-		if spread range < 9
-			spread range = 9
+		// The laser makes the already-tight grouping tighter still.  A small
+		// deliberate miss chance remains so it improves aim without making
+		// every shot guaranteed.
+		spread range = 7 - laser rank
+		if spread range < 3
+			spread range = 3
 		end
-		if random number (100) < 75 + laser rank * 4
+		if random number (100) < 94 + laser rank
 			spread = random number (spread range) - spread range / 2
 		else
 			spread = 60
@@ -1478,8 +1484,10 @@ func fire bullet
 			end
 		end
 	else
-		if random number (100) < 72
-			spread = random number (25) - 12
+		// Keep normal rifle fire grouped tightly around the aim line.  The
+		// occasional wide miss preserves the intended firearm feel.
+		if random number (100) < 90
+			spread = random number (9) - 4
 		else
 			spread = 60
 			if random number (2) == 0
