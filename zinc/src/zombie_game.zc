@@ -2592,6 +2592,11 @@ func update player (keys: dword, elapsed: int)
 	def dx = 0
 	def dy = 0
 	def move speed = player movement speed
+	if enhanced mode == 0 && (keys & key a) <> 0
+		// In the supplied player_keydown() the shot animation suspends
+		// character movement until fire is released.
+		move speed = 0
+	end
 	if enhanced mode == 0
 		// Restore the original rifle's heat/overload cycle. The source allows
 		// sixteen shots, cools one heat unit every 250 ms, then locks the gun
