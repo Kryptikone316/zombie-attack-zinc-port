@@ -191,6 +191,12 @@ current/max ranks without adding a platform-sensitive ABI structure.
   bullet and slows him briefly without reducing his health. Once all piglets
   are safe, gunfire resumes normal damage behavior.
 
+### 2026-11-27 — How To Play refresh
+
+- Updated the in-game guide to explain that shooting the invulnerable wolf
+  slows him, all three piglets must be saved before he can take damage, and
+  High Scores is available from the launcher.
+
 ### 2026-11-27 — Numeric font glyph correction
 
 - Replaced malformed number glyphs and corrected the affected letter glyph

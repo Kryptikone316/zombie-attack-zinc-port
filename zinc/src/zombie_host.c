@@ -817,9 +817,11 @@ void zombie_host_help(int unused)
     draw_text(330, 255, "PAUSE GAME", 2);
     draw_text(110, 300, "SELECT + START", 2);
     draw_text(330, 300, "EXIT TO FRONTEND", 2);
+    draw_text(130, 335, "SHOOT WOLF TO SLOW HIM", 1);
     draw_text(130, 350, "CARRY PIGLETS TO THE BARN", 1);
-    draw_text(130, 365, "SAVE ALL THREE TO HUNT THE WOLF", 1);
-    draw_text(254, 395, "A OR B BACK", 2);
+    draw_text(130, 365, "SAVE ALL THREE TO DAMAGE WOLF", 1);
+    draw_text(180, 380, "HIGH SCORES IN LAUNCHER", 1);
+    draw_text(254, 405, "A OR B BACK", 2);
 }
 
 typedef struct {
