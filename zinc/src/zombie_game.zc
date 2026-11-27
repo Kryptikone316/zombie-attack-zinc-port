@@ -37,11 +37,11 @@ import func zombie_host_present (int)
 import func zombie_host_sound (int)
 import func zombie_host_audio_pump (int)
 import func zombie_host_launcher (int)
-import func zombie_host_settings_menu (int, int, int, int)
+import func zombie_host_settings_menu (int, int, int, int, int)
 import func zombie_host_help (int)
 import func zombie_host_dialogue (int, int, int)
 import func zombie_host_settings_load (int): dword
-import func zombie_host_settings_save (int, int, int)
+import func zombie_host_settings_save (int, int, int, int)
 import func zombie_host_set_volumes (int, int, int)
 end
 
@@ -140,6 +140,7 @@ def settings selection: int
 def sound volume: int
 def music volume: int
 def global volume: int
+def dialogue enabled: int
 def enhanced mode: int
 def quit requested: int
 def dialogue id: int
@@ -290,7 +291,7 @@ func random number (limit: int): int
 end
 
 func say dialogue (id: int)
-	if enhanced mode == 0 || dialogue time > 0
+	if enhanced mode == 0 || dialogue enabled == 0 || dialogue time > 0
 		return
 	end
 	dialogue id = id
@@ -361,7 +362,7 @@ end
 
 func start ambient story
 	def story = 0
-	if enhanced mode == 0 || dialogue time > 0 || ambient story active <> 0 ||
+	if enhanced mode == 0 || dialogue enabled == 0 || dialogue time > 0 || ambient story active <> 0 ||
 	   ambient story cooldown > 0
 		return
 	end
@@ -598,7 +599,7 @@ func say transition dialogue
 end
 
 func start yeti distraction
-	if enhanced mode == 0 || dialogue time > 0 || yeti distraction active <> 0 ||
+	if enhanced mode == 0 || dialogue enabled == 0 || dialogue time > 0 || yeti distraction active <> 0 ||
 	   yeti distraction cooldown > 0
 		return
 	end
@@ -1009,13 +1010,13 @@ func spawn pickup
 	// Ammo is common enough to sustain ordinary rifle use and becomes
 	// guaranteed while reserves are low. Enhanced survival should not hinge on
 	// one favorable drop roll.
-	if player ammo <= player ammo max / 3
+	if player ammo <= player ammo max / 3 || roll < 55
 		pickup type[i] = pickup ammo
-	elsif roll < 55
-		pickup type[i] = pickup health
 	elsif roll < 75
-		pickup type[i] = pickup damage
+		pickup type[i] = pickup health
 	elsif roll < 88
+		pickup type[i] = pickup damage
+	elsif roll < 96
 		pickup type[i] = pickup speed
 	else
 		pickup type[i] = pickup rapid
@@ -2634,6 +2635,7 @@ func load settings
 	sound volume = (packed & 255:d):int
 	music volume = ((packed >> 8) & 255:d):int
 	global volume = ((packed >> 16) & 255:d):int
+	dialogue enabled = ((packed >> 24) & 255:d):int
 	if sound volume > 5
 		sound volume = 5
 	end
@@ -2643,11 +2645,15 @@ func load settings
 	if global volume > 5
 		global volume = 5
 	end
+	if dialogue enabled > 1
+		dialogue enabled = 1
+	end
 	zombie_host_set_volumes (sound volume, music volume, global volume)
 end
 
 func save settings
-	zombie_host_settings_save (sound volume, music volume, global volume)
+	zombie_host_settings_save (sound volume, music volume, global volume,
+		dialogue enabled)
 end
 
 func start game (mode: int)
@@ -2694,39 +2700,51 @@ func update settings (keys: dword)
 	if (keys & key up) <> 0 && (last keys & key up) == 0
 		settings selection -= 1
 		if settings selection < 0
-			settings selection = 3
+			settings selection = 4
 		end
 	end
 	if (keys & key down) <> 0 && (last keys & key down) == 0
 		settings selection += 1
-		if settings selection > 3
+		if settings selection > 4
 			settings selection = 0
 		end
 	end
 	if (keys & key left) <> 0 && (last keys & key left) == 0 &&
-	   settings selection < 3
+	   settings selection < 4
 		if settings selection == 0 && sound volume > 0
 			sound volume -= 1
 		elsif settings selection == 1 && music volume > 0
 			music volume -= 1
 		elsif settings selection == 2 && global volume > 0
 			global volume -= 1
+		elsif settings selection == 3
+			if dialogue enabled == 0
+				dialogue enabled = 1
+			else
+				dialogue enabled = 0
+			end
 		end
 		save settings
 	end
 	if (keys & key right) <> 0 && (last keys & key right) == 0 &&
-	   settings selection < 3
+	   settings selection < 4
 		if settings selection == 0 && sound volume < 5
 			sound volume += 1
 		elsif settings selection == 1 && music volume < 5
 			music volume += 1
 		elsif settings selection == 2 && global volume < 5
 			global volume += 1
+		elsif settings selection == 3
+			if dialogue enabled == 0
+				dialogue enabled = 1
+			else
+				dialogue enabled = 0
+			end
 		end
 		save settings
 	end
 	if (keys & key a) <> 0 && (last keys & key a) == 0 &&
-	   settings selection == 3
+	   settings selection == 4
 		screen = screen launcher
 	end
 end
@@ -2776,7 +2794,7 @@ public [name="c"] func main (argc: int, argv: [] string)
 			elsif screen == screen settings
 				update settings (keys)
 				zombie_host_settings_menu (settings selection, sound volume,
-					music volume, global volume)
+					music volume, global volume, dialogue enabled)
 			elsif screen == screen help
 				update help (keys)
 				zombie_host_help (0)

@@ -16,9 +16,11 @@ Controls:
 
 The executable opens at a Zinc-built main menu with Play Classic Game, Play
 Enhanced Game, Settings, How To Play, and Exit Game. Settings are stored as
-`data/settings.cfg` so volume choices survive a return to the frontend. The
-current host has generated sound effects but no music stream, so the music
-value is retained for future audio work.
+`data/settings.cfg` so volume and Commando Speech choices survive a return to
+the frontend. Commando Speech defaults on, and can be toggled with Left/Right
+in Settings; it only affects Enhanced-mode dialogue bubbles. The current host
+has generated sound effects but no music stream, so the music value is retained
+for future audio work.
 
 Classic mode keeps the original three humanoid enemy classes, straight
 unlimited shots, and one-time upgrade limits. Enhanced mode enables the added

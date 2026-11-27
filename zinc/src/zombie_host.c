@@ -387,27 +387,32 @@ unsigned int zombie_host_settings_load(int unused)
 {
     char path[512];
     FILE *file;
-    int sound = 5, music = 5, global = 5;
+    int sound = 5, music = 5, global = 5, dialogue = 1;
     (void)unused;
     snprintf(path, sizeof(path), "%s/settings.cfg", data_root[0] ? data_root : ".");
     file = fopen(path, "r");
     if (file) {
         if (fscanf(file, "%d %d %d", &sound, &music, &global) != 3) {
             sound = music = global = 5;
+            dialogue = 1;
+        } else if (fscanf(file, "%d", &dialogue) != 1) {
+            /* Three-field settings files predate the speech option. */
+            dialogue = 1;
         }
         fclose(file);
     }
     if (sound < 0 || sound > 5) sound = 5;
     if (music < 0 || music > 5) music = 5;
     if (global < 0 || global > 5) global = 5;
+    if (dialogue < 0 || dialogue > 1) dialogue = 1;
     sound_volume = sound;
     music_volume = music;
     global_volume = global;
     return (unsigned int)sound | ((unsigned int)music << 8) |
-           ((unsigned int)global << 16);
+           ((unsigned int)global << 16) | ((unsigned int)dialogue << 24);
 }
 
-void zombie_host_settings_save(int sound, int music, int global)
+void zombie_host_settings_save(int sound, int music, int global, int dialogue)
 {
     char path[512];
     FILE *file;
@@ -415,7 +420,9 @@ void zombie_host_settings_save(int sound, int music, int global)
     snprintf(path, sizeof(path), "%s/settings.cfg", data_root[0] ? data_root : ".");
     file = fopen(path, "w");
     if (!file) return;
-    fprintf(file, "%d %d %d\n", sound_volume, music_volume, global_volume);
+    if (dialogue < 0 || dialogue > 1) dialogue = 1;
+    fprintf(file, "%d %d %d %d\n", sound_volume, music_volume, global_volume,
+            dialogue);
     fclose(file);
 }
 
@@ -673,26 +680,29 @@ void zombie_host_launcher(int selected)
     draw_text(170, 410, "SELECT START EXIT", 2);
 }
 
-void zombie_host_settings_menu(int selected, int sound, int music, int global)
+void zombie_host_settings_menu(int selected, int sound, int music, int global,
+                               int dialogue)
 {
-    static const char *labels[4] = {
-        "SOUND VOLUME", "MUSIC VOLUME", "GLOBAL VOLUME", "BACK"
+    static const char *labels[5] = {
+        "SOUND VOLUME", "MUSIC VOLUME", "GLOBAL VOLUME", "COMMANDO SPEECH",
+        "BACK"
     };
     int values[3] = { sound, music, global };
     int i;
     zombie_host_background(1);
-    fill_rect(96, 65, 448, 350, 0x2104);
-    fill_rect(101, 70, 438, 340, 0x51e0);
+    fill_rect(96, 55, 448, 370, 0x2104);
+    fill_rect(101, 60, 438, 360, 0x51e0);
     draw_text(230, 92, "SETTINGS", 2);
-    for (i = 0; i < 4; i++) {
-        int y = 150 + i * 45;
+    for (i = 0; i < 5; i++) {
+        int y = 140 + i * 42;
         if (i == selected) fill_rect(145, y - 5, 350, 31, 0x4208);
         draw_text(164, y, labels[i], 2);
         if (i < 3) draw_number_scaled(455, y - 1, values[i], 2);
+        else if (i == 3) draw_text(455, y, dialogue ? "ON" : "OFF", 2);
     }
-    draw_text(155, 345, "LEFT RIGHT CHANGE", 2);
-    draw_text(174, 365, "A B BACK", 2);
-    draw_text(145, 390, "MUSIC IS STORED FOR FUTURE", 2);
+    draw_text(155, 365, "LEFT RIGHT CHANGE", 2);
+    draw_text(174, 385, "A B BACK", 2);
+    draw_text(145, 405, "MUSIC IS STORED FOR FUTURE", 1);
 }
 
 void zombie_host_help(int unused)

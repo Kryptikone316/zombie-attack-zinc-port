@@ -169,6 +169,16 @@ current/max ranks without adding a platform-sensitive ABI structure.
   30 rounds, expanded the active pickup slots, and shortened pickup intervals
   to reduce first-level ammunition starvation.
 
+### 2026-11-27 — Commando Speech setting
+
+- Added a persisted `COMMANDO SPEECH` toggle to the launcher Settings page.
+- Left/Right switches the option between ON and OFF; A on BACK returns to the
+  launcher, while B/Start still return immediately.
+- Existing three-field `settings.cfg` files remain compatible and default the
+  new option to ON. New saves use a fourth field for the speech choice.
+- Disabled speech suppresses Enhanced dialogue bubbles and scripted ambient
+  speech without changing combat, enemy, pickup, or rescue behavior.
+
 ### 2026-11-27 — Numeric font glyph correction
 
 - Replaced malformed number glyphs and corrected the affected letter glyph
