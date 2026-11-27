@@ -58,6 +58,11 @@ dialogue bubble. Lines are throttled so combat remains readable and varied
 comments are tied to enemy types, piglet rescue, wolf encounters, crows,
 unicorns, support upgrades, the Beagle Buddy, and pickups.
 
+Enhanced mode also contains twelve rare three-part ambient commando stories.
+These combine farm anecdotes, tactical observations, arrogant war-hero
+bravado, and light fourth-wall humor. They use a no-repeat cycle and yield to
+event, enemy, pickup, and support-system dialogue.
+
 Enhanced `BEAGLE BUDDY` has five ranks. The beagle fights nearby enemies,
 shows a health bar, retreats to the broken-fence position when exhausted, and
 returns after a rank-scaled recovery period.

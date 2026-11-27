@@ -238,3 +238,12 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added a rare goat-kill punchline: `TOTES MA'GOATS. / YOU'RE GOING TO MAKE A
   LOVELY TOTE!`.
 - Added a rare llama-kill punchline: `OH GREAT... / LLAMA DRAMA...`.
+
+### 2026-11-27 — Ambient commando story pool
+
+- Added twelve three-part ambient monologues for Enhanced mode. They mix farm
+  anecdotes, tactical observations, self-important war-hero taunts, and light
+  fourth-wall humor.
+- Stories are shown one bubble at a time, with a long cooldown and a separate
+  anti-repeat mask so all twelve are used before any can recur. Ambient stories
+  yield to enemy, event, pickup, and support-system dialogue.

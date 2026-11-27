@@ -144,6 +144,12 @@ def dialogue time: int
 def crow spotted: int
 def farm joke cooldown: int
 def wolf event seen: int
+def ambient story cooldown: int
+def ambient story active: int
+def ambient story index: int
+def ambient story step: int
+def ambient story used: dword
+def ambient story last: int
 
 def zombie active: [max zombies] int
 def zombie type: [max zombies] int
@@ -295,15 +301,72 @@ func say dialogue quad (first: int, second: int, third: int, fourth: int)
 	end
 end
 
+func choose ambient story: int
+	def candidate = 0
+	def attempts = 0
+	if ambient story used == 4095:d
+		ambient story used = 0:d
+	end
+	while attempts < 32
+		candidate = random number (12)
+		if candidate <> ambient story last &&
+		   (ambient story used & (1:d << candidate)) == 0:d
+			return candidate
+		end
+		++attempts
+	end
+	candidate = 0
+	while candidate < 12
+		if candidate <> ambient story last &&
+		   (ambient story used & (1:d << candidate)) == 0:d
+			return candidate
+		end
+		++candidate
+	end
+	return 0
+end
+
+func start ambient story
+	def story = 0
+	if enhanced mode == 0 || dialogue time > 0 || ambient story active <> 0 ||
+	   ambient story cooldown > 0
+		return
+	end
+	story = choose ambient story
+	ambient story index = story
+	ambient story last = story
+	ambient story used |= (1:d << story)
+	ambient story active = 1
+	ambient story step = 1
+	dialogue id = 87 + story * 3
+	dialogue time = 2800
+	// Keep the two ambient systems from speaking back-to-back.
+	farm joke cooldown = 26000 + random number (18000)
+	ambient story cooldown = 55000 + random number (35000)
+end
+
 func update dialogue (elapsed: int)
 	if farm joke cooldown > 0
 		farm joke cooldown -= elapsed
+	end
+	if ambient story cooldown > 0
+		ambient story cooldown -= elapsed
 	end
 	if dialogue time > 0
 		dialogue time -= elapsed
 		if dialogue time <= 0
 			dialogue time = 0
 			dialogue id = 0
+			if ambient story active <> 0
+				if ambient story step < 3
+					++ambient story step
+					dialogue id = 87 + ambient story index * 3 + ambient story step - 1
+					dialogue time = 2800
+				else
+					ambient story active = 0
+					ambient story step = 0
+				end
+			end
 		end
 	elsif enhanced mode <> 0 && farm joke cooldown <= 0
 		if wolf event seen <> 0 && random number (4) == 0
@@ -312,6 +375,8 @@ func update dialogue (elapsed: int)
 			say dialogue (70 + random number (8))
 		end
 		farm joke cooldown = 24000 + random number (18000)
+	elsif enhanced mode <> 0 && ambient story cooldown <= 0
+		start ambient story
 	end
 end
 
@@ -463,6 +528,12 @@ func reset game
 	crow spotted = 0
 	farm joke cooldown = 18000 + random number (12000)
 	wolf event seen = 0
+	ambient story cooldown = 42000 + random number (24000)
+	ambient story active = 0
+	ambient story index = 0
+	ambient story step = 0
+	ambient story used = 0:d
+	ambient story last = -1
 	upgrade menu = 0
 	upgrade selection = 0
 	upgrade pending = 0
