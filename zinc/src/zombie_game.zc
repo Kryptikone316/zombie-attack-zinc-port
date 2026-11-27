@@ -142,6 +142,8 @@ def quit requested: int
 def dialogue id: int
 def dialogue time: int
 def crow spotted: int
+def farm joke cooldown: int
+def wolf event seen: int
 
 def zombie active: [max zombies] int
 def zombie type: [max zombies] int
@@ -294,12 +296,22 @@ func say dialogue quad (first: int, second: int, third: int, fourth: int)
 end
 
 func update dialogue (elapsed: int)
+	if farm joke cooldown > 0
+		farm joke cooldown -= elapsed
+	end
 	if dialogue time > 0
 		dialogue time -= elapsed
 		if dialogue time <= 0
 			dialogue time = 0
 			dialogue id = 0
 		end
+	elsif enhanced mode <> 0 && farm joke cooldown <= 0
+		if wolf event seen <> 0 && random number (4) == 0
+			say dialogue (78 + random number (6))
+		else
+			say dialogue (70 + random number (8))
+		end
+		farm joke cooldown = 24000 + random number (18000)
 	end
 end
 
@@ -439,6 +451,8 @@ func reset game
 	dialogue id = 0
 	dialogue time = 0
 	crow spotted = 0
+	farm joke cooldown = 18000 + random number (12000)
+	wolf event seen = 0
 	upgrade menu = 0
 	upgrade selection = 0
 	upgrade pending = 0
@@ -1155,6 +1169,7 @@ func spawn wolf
 		return
 	end
 	wolf active = 1
+	wolf event seen = 1
 	say dialogue (25 + random number (3))
 	if (random number (2)) == 0
 		wolf x = -32

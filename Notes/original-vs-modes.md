@@ -223,3 +223,13 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Reworked the delivery toward an original snarky action-hero voice: groan-
   level wordplay, cynical one-liners, and light fourth-wall flavor without
   making every kill produce a comment.
+
+### 2026-11-27 — Occasional farm jokes
+
+- Added a separate 24–42 second farm-joke cooldown with a small pool of
+  standalone cow, bull, scarecrow, and fog puns. Jokes only appear when no
+  combat caption is active, keeping the commando chatty without making him
+  constant background noise.
+- Added a second, event-gated joke pool with Red Riding Hood and fairy-tale
+  references; those lines cannot appear until the piglet rescue has actually
+  summoned the Big Bad Wolf.
