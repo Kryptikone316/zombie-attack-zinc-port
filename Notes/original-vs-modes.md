@@ -199,3 +199,4 @@ current/max ranks without adding a platform-sensitive ABI structure.
   Start, and Select+Start.
 - Added a dedicated plus-sign glyph so the emergency-exit control is rendered
   correctly by the embedded Zinc host font.
+- Added a dedicated hyphen glyph and corrected the control label to `D-PAD`.
