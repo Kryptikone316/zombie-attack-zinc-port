@@ -14,6 +14,17 @@ Controls:
 - Upgrades open automatically when score reaches the next level threshold
 - Select + Start: emergency exit to the frontend
 
+The executable opens at a Zinc-built main menu with Play Classic Game, Play
+Enhanced Game, Settings, How To Play, and Exit Game. Settings are stored as
+`data/settings.cfg` so volume choices survive a return to the frontend. The
+current host has generated sound effects but no music stream, so the music
+value is retained for future audio work.
+
+Classic mode keeps the original three humanoid enemy classes, straight
+unlimited shots, and one-time upgrade limits. Enhanced mode enables the added
+farm enemies, mutations, pickups, rescue events, support systems, and ranked
+upgrades.
+
 The build keeps the original BMP and WAV assets in `data/` for this first
 hardware validation build.
 

@@ -145,3 +145,17 @@ current/max ranks without adding a platform-sensitive ABI structure.
   ±4-pixel grouping, while retaining a low-probability wide miss.
 - Tightened Laser Aim grouping further and raised its accuracy without making
   every shot guaranteed to hit.
+
+### 2026-11-27 — Zinc main menu and settings shell
+
+- Added an in-game Zinc launcher with Play Classic Game, Play Enhanced Game,
+  Settings, How To Play, and Exit Game entries.
+- Added persisted sound, music, and global volume settings under the port's
+  existing data directory; music is stored for future stream playback because
+  the current H.OS host produces generated effects only.
+- Kept Select+Start as a global emergency exit from the launcher and every
+  gameplay/menu state.
+- Wired the mode choice into the baseline rules: Classic restricts enemy
+  spawning to the original three humanoid classes, restores straight unlimited
+  shots, suppresses enhanced support/event systems, and caps upgrades at one
+  purchase; Enhanced retains the expanded systems and five-rank progression.

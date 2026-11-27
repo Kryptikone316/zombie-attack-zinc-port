@@ -12,7 +12,7 @@
 
 #define GAME_W 640
 #define GAME_H 480
-#define ASSET_COUNT 30
+#define ASSET_COUNT 31
 #define ASSET_FARM 0
 #define ASSET_COMMANDO 1
 #define ASSET_ZOMBIE 2
@@ -43,6 +43,7 @@
 #define ASSET_CHIPPER 27
 #define ASSET_SQUIRREL 28
 #define ASSET_BAD_NUT 29
+#define ASSET_ICON 30
 
 typedef struct {
     int w;
@@ -54,6 +55,10 @@ static unsigned short framebuffer[GAME_W * GAME_H];
 static image_t assets[ASSET_COUNT];
 static int display_active;
 static int audio_active;
+static char data_root[512];
+static int sound_volume = 5;
+static int music_volume = 5;
+static int global_volume = 5;
 static const unsigned short transparent = 0xf81f;
 
 static unsigned short rd16(const unsigned char *p)
@@ -304,6 +309,7 @@ static void draw_time_icon(int x, int y, int night)
 }
 
 static void audio_tone(int id);
+void zombie_host_set_volumes(int sound, int music, int global);
 
 int zombie_host_init(int unused)
 {
@@ -319,12 +325,13 @@ int zombie_host_init(int unused)
         "status-rapid.bmp", "cow-pie.bmp", "animal-crow.bmp",
         "rescue-piglet.bmp", "big-bad-wolf.bmp", "beagle-buddy.bmp",
         "pickup-ammo.bmp", "lawn-mower.bmp", "wood-chipper.bmp",
-        "squirrel.bmp", "bad-nut.bmp"
+        "squirrel.bmp", "bad-nut.bmp", "icon.bmp"
     };
     int i;
     (void)unused;
 
     if (!data_dir || !*data_dir) data_dir = "./data";
+    snprintf(data_root, sizeof(data_root), "%s", data_dir);
     for (i = 0; i < ASSET_COUNT; i++) {
         snprintf(path, sizeof(path), "%s/%s", data_dir, names[i]);
         if (load_bmp(path, &assets[i]) != 0) {
@@ -355,6 +362,55 @@ void zombie_host_deinit(int unused)
     if (audio_active) hwaudio_deinit();
     if (display_active) hwdisp_deinit();
     release_assets();
+}
+
+unsigned int zombie_host_settings_load(int unused)
+{
+    char path[512];
+    FILE *file;
+    int sound = 5, music = 5, global = 5;
+    (void)unused;
+    snprintf(path, sizeof(path), "%s/settings.cfg", data_root[0] ? data_root : ".");
+    file = fopen(path, "r");
+    if (file) {
+        if (fscanf(file, "%d %d %d", &sound, &music, &global) != 3) {
+            sound = music = global = 5;
+        }
+        fclose(file);
+    }
+    if (sound < 0 || sound > 5) sound = 5;
+    if (music < 0 || music > 5) music = 5;
+    if (global < 0 || global > 5) global = 5;
+    sound_volume = sound;
+    music_volume = music;
+    global_volume = global;
+    return (unsigned int)sound | ((unsigned int)music << 8) |
+           ((unsigned int)global << 16);
+}
+
+void zombie_host_settings_save(int sound, int music, int global)
+{
+    char path[512];
+    FILE *file;
+    zombie_host_set_volumes(sound, music, global);
+    snprintf(path, sizeof(path), "%s/settings.cfg", data_root[0] ? data_root : ".");
+    file = fopen(path, "w");
+    if (!file) return;
+    fprintf(file, "%d %d %d\n", sound_volume, music_volume, global_volume);
+    fclose(file);
+}
+
+void zombie_host_set_volumes(int sound, int music, int global)
+{
+    if (sound < 0) sound = 0;
+    if (sound > 5) sound = 5;
+    if (music < 0) music = 0;
+    if (music > 5) music = 5;
+    if (global < 0) global = 0;
+    if (global > 5) global = 5;
+    sound_volume = sound;
+    music_volume = music;
+    global_volume = global;
 }
 
 unsigned int zombie_host_keys(int unused)
@@ -560,7 +616,71 @@ void zombie_host_hud(int score, int life, int level, int night, int count,
     draw_text(560, 25, "Z", 1); draw_number(570, 25, count);
 }
 
-void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks)
+void zombie_host_launcher(int selected)
+{
+    static const char *labels[5] = {
+        "PLAY CLASSIC GAME", "PLAY ENHANCED GAME", "SETTINGS",
+        "HOW TO PLAY", "EXIT GAME"
+    };
+    int i;
+    zombie_host_background(1);
+    fill_rect(86, 44, 468, 392, 0x2104);
+    fill_rect(91, 49, 458, 382, 0x51e0);
+    draw_image(ASSET_ICON, 0, 0, 48, 48, 116, 68, 0);
+    draw_text(190, 73, "ZOMBIE ATTACK", 2);
+    draw_text(204, 105, "MAIN MENU", 1);
+    for (i = 0; i < 5; i++) {
+        int y = 145 + i * 45;
+        if (i == selected) fill_rect(155, y - 5, 330, 31, 0xffc0);
+        draw_text(175, y, labels[i], 1);
+    }
+    draw_text(176, 390, "A SELECT   B BACK", 1);
+    draw_text(170, 410, "SELECT START EXIT", 1);
+}
+
+void zombie_host_settings_menu(int selected, int sound, int music, int global)
+{
+    static const char *labels[4] = {
+        "SOUND VOLUME", "MUSIC VOLUME", "GLOBAL VOLUME", "BACK"
+    };
+    int values[3] = { sound, music, global };
+    int i;
+    zombie_host_background(1);
+    fill_rect(96, 65, 448, 350, 0x2104);
+    fill_rect(101, 70, 438, 340, 0x51e0);
+    draw_text(230, 92, "SETTINGS", 2);
+    for (i = 0; i < 4; i++) {
+        int y = 150 + i * 45;
+        if (i == selected) fill_rect(145, y - 5, 350, 31, 0xffc0);
+        draw_text(164, y, labels[i], 1);
+        if (i < 3) draw_number_scaled(455, y - 1, values[i], 2);
+    }
+    draw_text(155, 345, "LEFT RIGHT CHANGE", 1);
+    draw_text(174, 365, "A B BACK", 1);
+    draw_text(145, 390, "MUSIC IS STORED FOR FUTURE", 1);
+}
+
+void zombie_host_help(int unused)
+{
+    (void)unused;
+    zombie_host_background(1);
+    fill_rect(78, 48, 484, 385, 0x2104);
+    fill_rect(83, 53, 474, 375, 0x51e0);
+    draw_text(235, 75, "HOW TO PLAY", 2);
+    draw_text(122, 130, "D PAD MOVE", 1);
+    draw_text(122, 155, "A FIRE OR SELECT", 1);
+    draw_text(122, 180, "B CANCEL MENUS", 1);
+    draw_text(122, 205, "START PAUSE GAME", 1);
+    draw_text(122, 230, "SELECT START EXIT", 1);
+    draw_text(122, 275, "CARRY PIGLETS TO THE BARN", 1);
+    draw_text(122, 300, "SAVE ALL THREE TO HUNT THE WOLF", 1);
+    draw_text(122, 340, "CLASSIC AND ENHANCED MODES", 1);
+    draw_text(122, 365, "USE THE SETTINGS MENU", 1);
+    draw_text(195, 395, "A OR B BACK", 1);
+}
+
+void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks,
+                         int enhanced)
 {
     static const char *labels[10] = {
         "FAST WALK", "MORE SHOTS", "FAST SHOOT", "LASER AIM",
@@ -570,7 +690,8 @@ void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks)
     static const unsigned int codes[10] = {
         2u, 4u, 8u, 16u, 32u, 64u, 128u, 256u, 512u, 1u
     };
-    static const int max_ranks[10] = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
+    static const int enhanced_max_ranks[10] = { 5, 5, 5, 5, 5,
+                                                5, 5, 5, 5, 5 };
     int i;
     fill_rect(35, 102, 570, 275, 0x7820);
     fill_rect(40, 107, 560, 265, 0x51e0);
@@ -581,8 +702,9 @@ void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks)
         int x = col ? 330 : 55;
         int y = 150 + row * 31;
         int rank = (int)((ranks >> (i * 3)) & 7u);
-        int owned = rank >= max_ranks[i] ||
-                    (max_ranks[i] == 1 && (flags & codes[i]) != 0);
+        int max_rank = enhanced ? enhanced_max_ranks[i] : 1;
+        int owned = rank >= max_rank ||
+                    (max_rank == 1 && (flags & codes[i]) != 0);
         if (i == selected) {
             fill_rect(x - 3, y - 3, 256, 31, owned ? 0xf800 : 0xffc0);
         }
@@ -591,7 +713,7 @@ void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks)
         draw_text(x + 195, y + 8, "R", 1);
         draw_number(x + 204, y + 8, rank);
         draw_text(x + 216, y + 8, "M", 1);
-        draw_number(x + 225, y + 8, max_ranks[i]);
+        draw_number(x + 225, y + 8, max_rank);
     }
     draw_text(175, 345, "A SELECT", 1);
     draw_text(295, 345, "B/START CANCEL", 1);
@@ -657,7 +779,7 @@ static void audio_tone(int id)
 
 void zombie_host_sound(int id)
 {
-    if (audio_active) audio_tone(id);
+    if (audio_active && sound_volume > 0 && global_volume > 0) audio_tone(id);
 }
 
 void zombie_host_audio_pump(int unused)
@@ -675,6 +797,7 @@ void zombie_host_audio_pump(int unused)
                 tone_frames[j]--;
             }
         }
+        sample = sample * sound_volume * global_volume / 25;
         if (sample > 3000) sample = 3000;
         if (sample < -3000) sample = -3000;
         buffer[i * 2] = (short)sample;
