@@ -283,3 +283,6 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added six occasional livestock-duty quips for zombified barn animals,
   including `I SIGNED UP FOR ZOMBIES / NOT FARM ANIMALS` and `I'M A COMMANDO /
   NOT A BARNHAND`.
+- Added two scenery observations about the absent horses and motionless
+  tractor: `NO HORSES? / DID THEY READ THE SCRIPT?` and `WHY DOES THAT TRACTOR
+  NEVER MOVE? / IS IT ON BREAK?`.

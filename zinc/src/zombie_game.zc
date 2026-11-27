@@ -534,7 +534,7 @@ func say pickup dialogue (pickup kind: int)
 end
 
 func say scenery dialogue
-	def scene = random number (12)
+	def scene = random number (14)
 	def night = (day time / 30000) % 2
 	if night <> 0 && random number (2) == 0
 		scene = 3
@@ -542,7 +542,7 @@ func say scenery dialogue
 		scene = 4
 	end
 	if scene == scenery comment last
-		scene = (scene + 1) % 12
+		scene = (scene + 1) % 14
 	end
 	scenery comment last = scene
 	say dialogue (151 + scene)
