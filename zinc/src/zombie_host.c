@@ -177,7 +177,7 @@ static void release_assets(void)
     }
 }
 
-static int load_asset_set(const char *directory)
+static int load_asset_set(const char *directory, int required_count)
 {
     char path[512];
     int i;
@@ -186,6 +186,13 @@ static int load_asset_set(const char *directory)
     for (i = 0; i < ASSET_COUNT; i++) {
         snprintf(path, sizeof(path), "%s/%s", directory, asset_names[i]);
         if (load_bmp(path, &assets[i]) != 0) {
+            if (i >= required_count) {
+                /* Classic deliberately contains only the original four
+                 * runtime sheets. Enhanced-only sprites are not required
+                 * while that mode is active. */
+                memset(&assets[i], 0, sizeof(assets[i]));
+                continue;
+            }
             fprintf(stderr, "zombie: unable to load %s\n", path);
             release_assets();
             return -1;
@@ -380,7 +387,8 @@ int zombie_host_init(int unused)
     if (!data_dir || !*data_dir) data_dir = "./data";
     snprintf(data_root, sizeof(data_root), "%s", data_dir);
     snprintf(path, sizeof(path), "%s/enhanced", data_dir);
-    if (load_asset_set(path) != 0 && load_asset_set(data_dir) != 0) {
+    if (load_asset_set(path, ASSET_COUNT) != 0 &&
+        load_asset_set(data_dir, ASSET_COUNT) != 0) {
         return -1;
     }
     memset(framebuffer, 0, sizeof(framebuffer));
@@ -405,10 +413,11 @@ int zombie_host_set_mode(int mode)
 
     snprintf(path, sizeof(path), "%s/%s", data_root,
              mode == 0 ? "classic" : "enhanced");
-    if (load_asset_set(path) == 0) return 0;
+    if (load_asset_set(path, mode == 0 ? ASSET_PICKUP_HEALTH : ASSET_COUNT) == 0)
+        return 0;
 
     /* Development cards from before the split remain usable. */
-    return load_asset_set(data_root);
+    return load_asset_set(data_root, ASSET_COUNT);
 }
 
 void zombie_host_deinit(int unused)
@@ -854,7 +863,8 @@ void zombie_host_help(int unused)
     draw_text(130, 350, "CARRY PIGLETS TO THE BARN", 1);
     draw_text(130, 365, "SAVE ALL THREE TO DAMAGE WOLF", 1);
     draw_text(180, 380, "HIGH SCORES IN LAUNCHER", 1);
-    draw_text(254, 405, "A OR B BACK", 2);
+    draw_text(145, 395, "PAUSE/DEATH MENUS HAVE EXIT", 1);
+    draw_text(254, 415, "A OR B BACK", 2);
 }
 
 typedef struct {
@@ -1155,20 +1165,35 @@ void zombie_host_bad_nut(int x, int y, int pulse)
     draw_image(ASSET_BAD_NUT, 0, 0, 16, 16, x - 8, y - 8, 0);
 }
 
-void zombie_host_pause(int unused)
+void zombie_host_pause(int selected)
 {
-    (void)unused;
-    fill_rect(220, 185, 200, 95, 0x0000);
-    draw_text(260, 205, "PAUSED", 2);
-    draw_text(248, 245, "START RESUME", 2);
+    static const char *labels[2] = { "RESUME", "EXIT TO LAUNCHER" };
+    int i;
+    fill_rect(175, 160, 290, 160, 0x0000);
+    draw_text(260, 178, "PAUSED", 2);
+    for (i = 0; i < 2; i++) {
+        int y = 225 + i * 37;
+        if (i == selected) fill_rect(195, y - 5, 250, 31, 0x4208);
+        draw_text(215, y, labels[i], i == 0 ? 2 : 1);
+    }
+    draw_text(205, 298, "A SELECT", 1);
+    draw_text(305, 298, "START RESUME", 1);
 }
 
-void zombie_host_game_over(int score)
+void zombie_host_game_over(int score, int selected)
 {
-    fill_rect(150, 175, 340, 140, 0x0000);
-    draw_text(266, 195, "GAME OVER", 2);
-    draw_text(290, 230, "SCORE", 2);
-    draw_number_centered(320, 262, score, 2);
+    static const char *labels[2] = { "TRY AGAIN", "EXIT TO LAUNCHER" };
+    int i;
+    fill_rect(130, 145, 380, 240, 0x0000);
+    draw_text(266, 165, "GAME OVER", 2);
+    draw_text(290, 205, "SCORE", 2);
+    draw_number_centered(320, 230, score, 2);
+    for (i = 0; i < 2; i++) {
+        int y = 275 + i * 30;
+        if (i == selected) fill_rect(200, y - 3, 240, 21, 0x4208);
+        draw_text(220, y, labels[i], 1);
+    }
+    draw_text(238, 350, "A SELECT", 1);
 }
 
 void zombie_host_present(int unused)

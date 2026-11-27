@@ -379,3 +379,18 @@ current/max ranks without adding a platform-sensitive ABI structure.
   the rifle.
 - Added a rare sheep-specific counting joke: `IF YOU GUYS COUNT YOURSELVES /
   DO YOU FALL ASLEEP? GUESS NOT.`.
+
+### 2026-11-27 — Mode selection, run abandonment, and rescue stakes
+
+- Fixed Classic asset selection: its four required original runtime sheets are
+  now loadable without requiring Enhanced-only sprites, preventing fallback to
+  the merged Enhanced directory.
+- Added `TRY AGAIN` and `EXIT TO LAUNCHER` choices to the death screen. Retry
+  preserves the active mode; leaving returns to the launcher.
+- Expanded the pause panel with `RESUME` and `EXIT TO LAUNCHER`. Exiting
+  abandons the active run and forfeits its current score without recording a
+  game-over result.
+- Added a small rescue-event scoring layer in Enhanced mode: +10 per piglet,
+  +50 for saving all three, +50 for defeating the Big Bad Wolf, and a -25
+  penalty per piglet eaten. The score is clamped at zero and each outcome is
+  counted once.

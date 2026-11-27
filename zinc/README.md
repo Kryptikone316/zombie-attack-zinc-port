@@ -99,6 +99,13 @@ delay, hunts the piglets, and becomes vulnerable to gunfire only after all
 three are safely inside. Before then, gunfire cannot hurt him but does slow his
 movement briefly, giving the commando room to reach the barn.
 
+Enhanced rescue scoring gives a small bonus for each piglet recovered, a larger
+completion bonus for saving all three, and a bonus for defeating the wolf. Each
+piglet eaten applies a small score penalty.
+
+The pause and death panels provide Resume/Try Again and Exit to Launcher
+choices. Exiting from pause abandons the current run and forfeits its score.
+
 Cows occasionally leave visible cow-pie land-mines behind them. A pie lasts
 10 seconds, deals 2 damage on contact, and is subject to an eight-hazard cap.
 

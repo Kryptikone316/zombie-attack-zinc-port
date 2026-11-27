@@ -28,7 +28,7 @@ import func zombie_host_dog (int, int, int, int, int, int, int)
 import func zombie_host_player_status (int, int, int, int, int, int, int)
 import func zombie_host_hud (int, int, int, int, int, int, int, int, int)
 import func zombie_host_upgrade (int, dword, dword, int)
-import func zombie_host_game_over (int)
+import func zombie_host_game_over (int, int)
 import func zombie_host_pause (int)
 import func zombie_host_mower (int, int, int)
 import func zombie_host_chipper (int, int, int)
@@ -98,6 +98,10 @@ equ pickup damage = 1
 equ pickup speed = 2
 equ pickup rapid = 3
 equ pickup ammo = 4
+equ pig rescue bonus = 10
+equ pig rescue completion bonus = 50
+equ wolf defeat bonus = 50
+equ pig loss penalty = 25
 
 def player x: int
 def player y: int
@@ -128,8 +132,10 @@ def player poison time: int
 def player poison tick time: int
 def player cripple time: int
 def player game over: int
+def game over selection: int
 def player moving: int
 def paused: int
+def pause selection: int
 def time stop time: int
 def time stop cooldown: int
 
@@ -698,8 +704,10 @@ func reset game
 	player poison tick time = 0
 	player cripple time = 0
 	player game over = 0
+	game over selection = 0
 	player moving = 0
 	paused = 0
+	pause selection = 0
 	time stop time = 0
 	time stop cooldown = 0
 	day time = 0
@@ -1306,6 +1314,7 @@ func squirrel nut impact (impact x: int, impact y: int)
 		if wolf life <= 0
 			wolf active = 0
 			player score += 100
+			player score += wolf defeat bonus
 		end
 	end
 	i = 0
@@ -1315,7 +1324,7 @@ func squirrel nut impact (impact x: int, impact y: int)
 			pig life[i] -= 1
 			pig hit time[i] = 160
 			if pig life[i] <= 0
-				pig state[i] = pig lost
+				lose rescue pig (i)
 			end
 		end
 		++i
@@ -1400,6 +1409,18 @@ func spawn rescue pigs
 		pig life[i] = 8
 		pig hit time[i] = 0
 		++i
+	end
+end
+
+func lose rescue pig (index: int)
+	if pig state[index] == pig lost || pig state[index] == pig saved
+		return
+	end
+	pig state[index] = pig lost
+	if player score > pig loss penalty
+		player score -= pig loss penalty
+	else
+		player score = 0
 	end
 end
 
@@ -1503,6 +1524,7 @@ func update rescue pigs (elapsed: int)
 				pig carried index = -1
 				pig saved count += 1
 				player score += 50
+				player score += pig rescue bonus
 				zombie_host_sound (3)
 				if pig saved count >= max rescue pigs
 					say dialogue (35)
@@ -1510,6 +1532,7 @@ func update rescue pigs (elapsed: int)
 					say dialogue (34)
 				end
 				if pig saved count >= max rescue pigs
+					player score += pig rescue completion bonus
 					wolf vulnerable = 1
 				end
 			end
@@ -1996,7 +2019,7 @@ func update wolf (elapsed: int)
 			pig life[target pig] -= 2
 			pig hit time[target pig] = 250
 			if pig life[target pig] <= 0
-				pig state[target pig] = pig lost
+				lose rescue pig (target pig)
 			end
 		else
 			player life -= 3
@@ -2195,6 +2218,7 @@ func update bullets (elapsed: int)
 								wolf summoned = 1
 								say dialogue (28 + random number (3))
 								player score += 100
+								player score += wolf defeat bonus
 								zombie_host_sound (1)
 							end
 						else
@@ -2427,7 +2451,7 @@ func update zombies (elapsed: int)
 					pig hit time[target pig] = 250
 					zombie_host_sound (2)
 					if pig life[target pig] <= 0
-						pig state[target pig] = pig lost
+						lose rescue pig (target pig)
 					end
 				elsif target kind == 3
 					dog life -= zombie contact damage[i]
@@ -2909,7 +2933,7 @@ func draw game
 			enhanced mode)
 	end
 	if player game over <> 0
-		zombie_host_game_over (player score)
+		zombie_host_game_over (player score, game over selection)
 	end
 end
 
@@ -2967,6 +2991,59 @@ func update high score
 		end
 	end
 	high score recorded = 1
+end
+
+func update game over (keys: dword)
+	if ((keys & key up) <> 0 && (last keys & key up) == 0) ||
+	   ((keys & key down) <> 0 && (last keys & key down) == 0)
+		if game over selection == 0
+			game over selection = 1
+		else
+			game over selection = 0
+		end
+	end
+	if (keys & key b) <> 0 && (last keys & key b) == 0
+		player game over = 0
+		screen = screen launcher
+		menu selection = 0
+		return
+	end
+	if (keys & key a) <> 0 && (last keys & key a) == 0
+		if game over selection == 0
+			start game (enhanced mode)
+		else
+			player game over = 0
+			screen = screen launcher
+			menu selection = 0
+		end
+	end
+end
+
+func update paused (keys: dword)
+	if ((keys & key up) <> 0 && (last keys & key up) == 0) ||
+	   ((keys & key down) <> 0 && (last keys & key down) == 0)
+		if pause selection == 0
+			pause selection = 1
+		else
+			pause selection = 0
+		end
+	end
+	if (keys & key start) <> 0 && (last keys & key start) == 0
+		paused = 0
+		return
+	end
+	if (keys & key a) <> 0 && (last keys & key a) == 0
+		if pause selection == 0
+			paused = 0
+		else
+			// Leaving pause abandons the run without recording its score.
+			player score = 0
+			player game over = 0
+			paused = 0
+			screen = screen launcher
+			menu selection = 0
+		end
+	end
 end
 
 func start game (mode: int)
@@ -3159,21 +3236,18 @@ public [name="c"] func main (argc: int, argv: [] string)
 			else
 			if player game over <> 0
 				update high score
-				if (keys & key start) <> 0 && (last keys & key start) == 0
-					reset game
-				end
-		elsif upgrade menu <> 0
+				update game over (keys)
+			elsif upgrade menu <> 0
 				update upgrade (keys)
 		elsif paused <> 0
-			if (keys & key start) <> 0 && (last keys & key start) == 0
-				paused = 0
-			end
+			update paused (keys)
 			else
 			if (keys & key start) <> 0 && (last keys & key start) == 0
 				if upgrade pending <> 0
 					upgrade menu = 1
 				else
 					paused = 1
+					pause selection = 0
 				end
 				else
 					update player (keys, elapsed)
@@ -3248,7 +3322,7 @@ public [name="c"] func main (argc: int, argv: [] string)
 			end
 			draw game
 			if paused <> 0
-				zombie_host_pause (0)
+				zombie_host_pause (pause selection)
 			end
 			end
 			if quit requested <> 0
