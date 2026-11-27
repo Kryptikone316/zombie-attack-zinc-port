@@ -59,7 +59,7 @@ equ screen help = 3
 equ max zombies = 32
 equ max bullets = 64
 equ max upgrades = 10
-equ max pickups = 3
+equ max pickups = 4
 equ max cow pies = 8
 equ max squirrel nuts = 6
 equ max rescue pigs = 3
@@ -273,7 +273,7 @@ func reset game
 	player damage = 10
 	player shot delay = 90
 	player life max = 20
-	player ammo max = 60
+	player ammo max = 100
 	player ammo = player ammo max
 	player damage boost = 0
 	player damage boost time = 0
@@ -291,7 +291,7 @@ func reset game
 	spawn time = 0
 	spawn interval = 2000
 	pickup spawn time = 0
-	pickup spawn interval = 14000
+	pickup spawn interval = 9000
 	wolf spawn time = 0
 	wolf spawn interval = 32000
 	pig event time = 0
@@ -597,16 +597,16 @@ func spawn pickup
 	end
 	pickup active[i] = 1
 	def roll = random number (100)
-	if roll < 30
-		pickup type[i] = pickup health
-	elsif roll < 55
-		pickup type[i] = pickup damage
-	elsif roll < 70
-		pickup type[i] = pickup speed
-	elsif roll < 82
-		pickup type[i] = pickup rapid
-	else
+	if roll < 40
 		pickup type[i] = pickup ammo
+	elsif roll < 65
+		pickup type[i] = pickup health
+	elsif roll < 82
+		pickup type[i] = pickup damage
+	elsif roll < 92
+		pickup type[i] = pickup speed
+	else
+		pickup type[i] = pickup rapid
 	end
 	pickup x[i] = 40 + random number (560)
 	pickup y[i] = 350 + random number (110)
@@ -693,7 +693,7 @@ func update pickups (elapsed: int)
 						zombie_host_sound (3)
 					else
 						if player ammo < player ammo max
-							player ammo += 20
+							player ammo += 30
 							if player ammo > player ammo max
 								player ammo = player ammo max
 							end
@@ -2379,7 +2379,7 @@ public [name="c"] func main (argc: int, argv: [] string)
 					if pickup spawn time > pickup spawn interval
 						pickup spawn time -= pickup spawn interval
 						spawn pickup
-						pickup spawn interval = 11000 + random number (9000)
+						pickup spawn interval = 7000 + random number (7000)
 					end
 					if player score >= player next level && upgrade pending == 0
 						player level += 1

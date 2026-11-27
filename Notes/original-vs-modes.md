@@ -159,3 +159,19 @@ current/max ranks without adding a platform-sensitive ABI structure.
   spawning to the original three humanoid classes, restores straight unlimited
   shots, suppresses enhanced support/event systems, and caps upgrades at one
   purchase; Enhanced retains the expanded systems and five-rank progression.
+
+### 2026-11-27 — Menu contrast and Enhanced ammunition balance
+
+- Replaced the bright yellow menu selection fill with a dark neutral highlight
+  so the existing white text remains legible.
+- Increased Enhanced starting rifle ammunition from 60 to 100 rounds.
+- Increased the ammo-crate weighting to 40%, increased crate replenishment to
+  30 rounds, expanded the active pickup slots, and shortened pickup intervals
+  to reduce first-level ammunition starvation.
+
+### 2026-11-27 — Numeric font glyph correction
+
+- Replaced malformed number glyphs and corrected the affected letter glyph
+  lengths in the embedded 5×7 font table. Every glyph now has a complete,
+  bounds-safe 35-pixel pattern, preventing digits from borrowing neighboring
+  glyph data and rendering as letters or corrupted shapes.
