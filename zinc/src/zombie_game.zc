@@ -455,15 +455,15 @@ end
 
 func say pickup dialogue (pickup kind: int)
 	if pickup kind == pickup ammo
-		say dialogue (43 + random number (2))
+		say dialogue quad (43, 44, 135, 136)
 	elsif pickup kind == pickup damage
-		say dialogue (45 + random number (2))
+		say dialogue quad (45, 46, 137, 138)
 	elsif pickup kind == pickup health
-		say dialogue (47 + random number (2))
+		say dialogue quad (47, 48, 139, 140)
 	elsif pickup kind == pickup speed
-		say dialogue (49 + random number (2))
+		say dialogue quad (49, 50, 141, 142)
 	else
-		say dialogue (51 + random number (2))
+		say dialogue quad (51, 52, 143, 144)
 	end
 end
 

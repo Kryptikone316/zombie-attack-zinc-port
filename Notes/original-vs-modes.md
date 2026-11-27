@@ -261,3 +261,5 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added four Beagle Buddy retreat lines. They trigger once when the buddy is
   exhausted or its active duty period ends, then it runs back to the fence for
   recovery.
+- Expanded pickup reactions to four choices per category, adding obvious-but-
+  cheeky lines for ammo, damage, health, speed, and rapid-fire pickups.
