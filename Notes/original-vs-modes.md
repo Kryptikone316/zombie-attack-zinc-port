@@ -249,3 +249,12 @@ current/max ranks without adding a platform-sensitive ABI structure.
   yield to enemy, event, pickup, and support-system dialogue.
 - Added rare generic combat quips for the humanoid zombie classes: `TAKE THAT!
   / AND THAT!` and `EAT LEAD... / OR AT LEAST IT MIGHT BE LEAD`.
+- Added restrained colloquial speech to selected ambient lines, including
+  `SHOOTIN'`, `LOSIN'`, `MAKIN'`, `SOMETHIN'`, and `UNDERSTANDIN'`.
+
+### 2026-11-27 — Damage reaction dialogue
+
+- Added occasional Enhanced-mode reactions when the commando takes damage,
+  including generic impact quips, a poison-specific complaint, and a farm-
+  hazard reaction. Damage dialogue is throttled by the existing speech bubble
+  suppression so repeated hits and poison ticks remain readable.

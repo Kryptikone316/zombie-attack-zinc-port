@@ -301,6 +301,19 @@ func say dialogue quad (first: int, second: int, third: int, fourth: int)
 	end
 end
 
+func say damage dialogue (kind: int)
+	if enhanced mode == 0 || random number (3) <> 0
+		return
+	end
+	if kind == 1
+		say dialogue (129)
+	elsif kind == 2 && random number (2) == 0
+		say dialogue (130)
+	else
+		say dialogue (125 + random number (4))
+	end
+end
+
 func choose ambient story: int
 	def candidate = 0
 	def attempts = 0
@@ -959,6 +972,7 @@ func update cow pies (elapsed: int)
 					player life -= 2
 					cow pie active[i] = 0
 					zombie_host_sound (2)
+					say damage dialogue (2)
 					if player life <= 0
 						player game over = 1
 					end
@@ -997,6 +1011,7 @@ func squirrel nut impact (impact x: int, impact y: int)
 	if absolute (player x - impact x) < 28 && absolute (player y - impact y) < 30
 		player life -= 1
 		zombie_host_sound (2)
+		say damage dialogue (2)
 		if player life <= 0
 			player game over = 1
 		end
@@ -1707,6 +1722,7 @@ func update wolf (elapsed: int)
 			end
 		else
 			player life -= 3
+			say damage dialogue (0)
 			if player life <= 0
 				player game over = 1
 			end
@@ -1993,9 +2009,11 @@ func update zombies (elapsed: int)
 				zombie_host_sound (2)
 				if target kind == 0
 					player life -= zombie contact damage[i]
+					say damage dialogue (0)
 					if zombie mutation[i] == 2
 						player poison time = 6000
 						player poison tick time = 1000
+						say damage dialogue (1)
 					elsif zombie mutation[i] == 3
 						player cripple time = 5000
 					end

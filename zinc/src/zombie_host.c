@@ -703,7 +703,7 @@ typedef struct {
     const char *line_two;
 } dialogue_t;
 
-static const dialogue_t dialogue_lines[125] = {
+static const dialogue_t dialogue_lines[131] = {
     { "", "" },
     { "YOU WALKED IN!", "NOW WALK IT OFF" },
     { "BACK TO THE GRAVE", "NO AUTOGRAPHS" },
@@ -800,7 +800,7 @@ static const dialogue_t dialogue_lines[125] = {
     { "FIRST DAY ON THE FARM", "I ASKED FOR A DESK" },
     { "THEY GAVE ME A RIFLE", "AND A SHORT BRIEFING" },
     { "BEST CAREER MOVE", "WORST EMPLOYEE BENEFITS" },
-    { "THE SCARECROW AND I", "HAVE AN UNDERSTANDING" },
+    { "THE SCARECROW AND I", "HAVE AN UNDERSTANDIN'" },
     { "HE HANDLES THE CROWS", "I HANDLE EVERYTHING ELSE" },
     { "TEAMWORK MAKES THE", "NIGHTMARE WORK" },
     { "THE BARN DOOR CREAKED", "I SAID THAT'S PROBABLY FINE" },
@@ -818,17 +818,23 @@ static const dialogue_t dialogue_lines[125] = {
     { "THE SCORE KEEPS CLIMBING", "SO DOES MY REPUTATION" },
     { "THEY BROUGHT NUMBERS", "I BROUGHT TALENT" },
     { "IF THIS IS A TEST", "I AM THE ANSWER" },
-    { "THEY HAVE THE ADVANTAGE", "THEY'RE STILL LOSING" },
+    { "THEY HAVE THE ADVANTAGE", "THEY'RE STILL LOSIN'" },
     { "REMEMBER THIS MOMENT", "I CERTAINLY WILL" },
-    { "THEY SHOULD WRITE THIS DOWN", "I'M MAKING HISTORY" },
+    { "THEY SHOULD WRITE THIS DOWN", "I'M MAKIN' HISTORY" },
     { "THE COMMANDO HANDBOOK", "HAS A FARM DEFENSE CHAPTER" },
     { "PAGE ONE SAYS RUN", "PAGE TWO SAYS SHOOT" },
     { "PAGE THREE IS JUST", "A PICTURE OF A BOOT" },
     { "IF THIS WERE A MOVIE", "THE MUSIC WOULD SWELL" },
-    { "THE HERO WOULD SAY", "SOMETHING MEMORABLE" },
-    { "I'M BUSY SHOOTING", "PLEASE IMPROVISE" },
+    { "THE HERO WOULD SAY", "SOMETHIN' MEMORABLE" },
+    { "I'M BUSY SHOOTIN'", "PLEASE IMPROVISE" },
     { "TAKE THAT!", "AND THAT!" },
-    { "EAT LEAD...", "OR AT LEAST IT MIGHT BE LEAD" }
+    { "EAT LEAD...", "OR AT LEAST IT MIGHT BE LEAD" },
+    { "OW! THAT WAS RUDE", "TRY IT AGAIN" },
+    { "YOU HIT ME?", "BIG MISTAKE" },
+    { "HEY! WATCH THE UNIFORM", "THIS IS CUSTOM" },
+    { "I'VE HAD WORSE", "NOT MANY TIMES" },
+    { "POISON? REALLY?", "THAT'S JUST CHEATING" },
+    { "A FARM HAZARD?", "I HATE THIS JOB" }
 };
 
 void zombie_host_dialogue(int id, int x, int y)
