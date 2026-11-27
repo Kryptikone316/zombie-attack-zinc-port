@@ -682,10 +682,15 @@ void zombie_host_help(int unused)
 void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks,
                          int enhanced)
 {
-    static const char *labels[10] = {
+    static const char *enhanced_labels[10] = {
         "FAST WALK", "MORE SHOTS", "FAST SHOOT", "LASER AIM",
         "WOOD CHIPPER", "TIME STOP", "MORE LIFE", "BEAGLE BUDDY",
         "MORE DAMAGE", "LAWN MOWER"
+    };
+    static const char *classic_labels[10] = {
+        "FAST WALK", "MORE SHOTS", "FAST SHOOT", "LASER AIM",
+        "MORE DIRECTIONS", "TIME STOP", "MORE LIFE", "FAST LIFE",
+        "MORE DAMAGE", "GRENADES"
     };
     static const unsigned int codes[10] = {
         2u, 4u, 8u, 16u, 32u, 64u, 128u, 256u, 512u, 1u
@@ -709,7 +714,7 @@ void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks,
             fill_rect(x - 3, y - 3, 256, 31, owned ? 0xf800 : 0xffc0);
         }
         fill_rect(x, y, 250, 25, owned ? 0x7bef : 0x8c41);
-        draw_text(x + 8, y + 8, labels[i], 1);
+        draw_text(x + 8, y + 8, enhanced ? enhanced_labels[i] : classic_labels[i], 1);
         draw_text(x + 195, y + 8, "R", 1);
         draw_number(x + 204, y + 8, rank);
         draw_text(x + 216, y + 8, "M", 1);

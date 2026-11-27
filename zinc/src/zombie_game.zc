@@ -1115,6 +1115,9 @@ func update dog (elapsed: int)
 	def distance: int
 	def best distance = 100000
 	def step: int
+	if enhanced mode == 0
+		return
+	end
 	if dog rank == 0
 		return
 	end
@@ -1228,6 +1231,9 @@ func update farm helpers (elapsed: int)
 	def dy: int
 	def mower rank = upgrade rank (9)
 	def chipper rank = upgrade rank (4)
+	if enhanced mode == 0
+		return
+	end
 	if mower rank > 0
 		if mower time > 0
 			mower time -= elapsed
@@ -1843,7 +1849,7 @@ func apply upgrade
 		end
 	elsif upgrade selection == 3
 		// Laser Aim's accuracy and damage are applied when each round is fired.
-	elsif upgrade selection == 4
+	elsif upgrade selection == 4 && enhanced mode <> 0
 		chipper cooldown = 1000
 	elsif upgrade selection == 5
 		time stop cooldown = 1000
@@ -1852,11 +1858,11 @@ func apply upgrade
 		player life += 10
 	elsif upgrade selection == 8
 		player damage += 5
-	elsif upgrade selection == 9
+	elsif upgrade selection == 9 && enhanced mode <> 0
 		mower cooldown = 1000
 	end
 	upgrade ranks += (1:d << (upgrade selection * 3))
-	if upgrade selection == 7
+	if upgrade selection == 7 && enhanced mode <> 0
 		dog rank = upgrade rank (7)
 		if dog state == dog inactive
 			activate dog
