@@ -275,3 +275,7 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added a separate rare six-line “director commentary” pool. The commando can
   argue with the nonexistent director, demand more zombies, reject a stunt
   double, or complain about billing as if the farm were a film set.
+- Added eight rarer transitional lines that blend the farm setting, tactical
+  duty, movie framing, oversized bravado, and the possibility that this is the
+  commando's last day. These bridge the other dialogue pools into a more
+  coherent character voice instead of making each joke feel isolated.

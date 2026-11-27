@@ -149,6 +149,8 @@ def scenery comment cooldown: int
 def scenery comment last: int
 def director comment cooldown: int
 def director comment last: int
+def transition comment cooldown: int
+def transition comment last: int
 def ambient story cooldown: int
 def ambient story active: int
 def ambient story index: int
@@ -362,6 +364,7 @@ func start ambient story
 	farm joke cooldown = 26000 + random number (18000)
 	scenery comment cooldown = 22000 + random number (12000)
 	director comment cooldown = 22000 + random number (12000)
+	transition comment cooldown = 22000 + random number (12000)
 	ambient story cooldown = 55000 + random number (35000)
 end
 
@@ -377,6 +380,9 @@ func update dialogue (elapsed: int)
 	end
 	if director comment cooldown > 0
 		director comment cooldown -= elapsed
+	end
+	if transition comment cooldown > 0
+		transition comment cooldown -= elapsed
 	end
 	if dialogue time > 0
 		dialogue time -= elapsed
@@ -404,6 +410,9 @@ func update dialogue (elapsed: int)
 		if director comment cooldown <= 0
 			director comment cooldown = 22000 + random number (12000)
 		end
+		if transition comment cooldown <= 0
+			transition comment cooldown = 22000 + random number (12000)
+		end
 	elsif enhanced mode <> 0 && ambient story cooldown <= 0
 		start ambient story
 	elsif enhanced mode <> 0 && scenery comment cooldown <= 0
@@ -412,12 +421,21 @@ func update dialogue (elapsed: int)
 		if director comment cooldown <= 0
 			director comment cooldown = 22000 + random number (12000)
 		end
+		if transition comment cooldown <= 0
+			transition comment cooldown = 22000 + random number (12000)
+		end
 	elsif enhanced mode <> 0 && director comment cooldown <= 0
 		say director dialogue
 		director comment cooldown = 120000 + random number (60000)
 		if scenery comment cooldown <= 0
 			scenery comment cooldown = 22000 + random number (12000)
 		end
+		if transition comment cooldown <= 0
+			transition comment cooldown = 22000 + random number (12000)
+		end
+	elsif enhanced mode <> 0 && transition comment cooldown <= 0
+		say transition dialogue
+		transition comment cooldown = 105000 + random number (60000)
 	end
 end
 
@@ -529,6 +547,15 @@ func say director dialogue
 	say dialogue (163 + comment)
 end
 
+func say transition dialogue
+	def comment = random number (8)
+	if comment == transition comment last
+		comment = (comment + 1) % 8
+	end
+	transition comment last = comment
+	say dialogue (169 + comment)
+end
+
 func reset game
 	def i = 0
 	player x = 320
@@ -616,6 +643,8 @@ func reset game
 	scenery comment last = -1
 	director comment cooldown = 120000 + random number (60000)
 	director comment last = -1
+	transition comment cooldown = 105000 + random number (60000)
+	transition comment last = -1
 	ambient story cooldown = 42000 + random number (24000)
 	ambient story active = 0
 	ambient story index = 0

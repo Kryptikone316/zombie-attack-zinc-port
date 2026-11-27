@@ -703,7 +703,7 @@ typedef struct {
     const char *line_two;
 } dialogue_t;
 
-static const dialogue_t dialogue_lines[169] = {
+static const dialogue_t dialogue_lines[177] = {
     { "", "" },
     { "YOU WALKED IN!", "NOW WALK IT OFF" },
     { "BACK TO THE GRAVE", "NO AUTOGRAPHS" },
@@ -872,7 +872,15 @@ static const dialogue_t dialogue_lines[169] = {
     { "NO, THAT WASN'T", "A STUNT DOUBLE" },
     { "TELL THE DIRECTOR", "I WANT TOP BILLING" },
     { "THAT TAKE WAS PERFECT", "DO IT AGAIN? NO." },
-    { "I CAN'T HEAR THE DIRECTOR", "HE'S FICTIONAL" }
+    { "I CAN'T HEAR THE DIRECTOR", "HE'S FICTIONAL" },
+    { "THIS IS A FARM", "NOT A NORMAL LAST STAND" },
+    { "IF THIS IS MY LAST DAY", "I'M SPENDING IT LOUD" },
+    { "THE ODDS ARE TERRIBLE", "MY OUTFIT ISN'T" },
+    { "THEY CALL IT OVERKILL", "I CALL IT JOB SECURITY" },
+    { "A HERO NEEDS AN EXIT", "I PREFER A FINAL SCENE" },
+    { "I SHOULD BE WORRIED", "I'M HAVING TOO MUCH FUN" },
+    { "NO ONE LEFT TO IMPRESS", "I'LL IMPRESS MYSELF" },
+    { "WHEN THIS IS OVER", "SOMEONE BUY THE FARM A RADIO" }
 };
 
 void zombie_host_dialogue(int id, int x, int y)
