@@ -862,7 +862,7 @@ void zombie_host_help(int unused)
     draw_text(130, 335, "SHOOT WOLF TO SLOW HIM", 1);
     draw_text(130, 350, "CARRY PIGLETS TO THE BARN", 1);
     draw_text(130, 365, "SAVE ALL THREE TO DAMAGE WOLF", 1);
-    draw_text(180, 380, "HIGH SCORES IN LAUNCHER", 1);
+    draw_text(180, 380, "HIGH SCORES IN MAIN MENU", 1);
     draw_text(145, 395, "PAUSE/DEATH MENUS HAVE EXIT", 1);
     draw_text(254, 415, "A OR B BACK", 2);
 }
@@ -1167,7 +1167,7 @@ void zombie_host_bad_nut(int x, int y, int pulse)
 
 void zombie_host_pause(int selected)
 {
-    static const char *labels[2] = { "RESUME", "EXIT TO LAUNCHER" };
+    static const char *labels[2] = { "RESUME", "EXIT TO MAIN MENU" };
     int i;
     fill_rect(175, 160, 290, 160, 0x0000);
     draw_text(260, 178, "PAUSED", 2);
@@ -1182,7 +1182,7 @@ void zombie_host_pause(int selected)
 
 void zombie_host_game_over(int score, int selected)
 {
-    static const char *labels[2] = { "TRY AGAIN", "EXIT TO LAUNCHER" };
+    static const char *labels[2] = { "TRY AGAIN", "EXIT TO MAIN MENU" };
     int i;
     fill_rect(130, 145, 380, 240, 0x0000);
     draw_text(266, 165, "GAME OVER", 2);

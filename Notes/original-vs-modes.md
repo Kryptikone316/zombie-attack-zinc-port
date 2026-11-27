@@ -385,9 +385,9 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Fixed Classic asset selection: its four required original runtime sheets are
   now loadable without requiring Enhanced-only sprites, preventing fallback to
   the merged Enhanced directory.
-- Added `TRY AGAIN` and `EXIT TO LAUNCHER` choices to the death screen. Retry
+- Added `TRY AGAIN` and `EXIT TO MAIN MENU` choices to the death screen. Retry
   preserves the active mode; leaving returns to the launcher.
-- Expanded the pause panel with `RESUME` and `EXIT TO LAUNCHER`. Exiting
+- Expanded the pause panel with `RESUME` and `EXIT TO MAIN MENU`. Exiting
   abandons the active run and forfeits its current score without recording a
   game-over result.
 - Added a small rescue-event scoring layer in Enhanced mode: +10 per piglet,
