@@ -233,3 +233,5 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added a second, event-gated joke pool with Red Riding Hood and fairy-tale
   references; those lines cannot appear until the piglet rescue has actually
   summoned the Big Bad Wolf.
+- Added a rare chicken-kill punchline: `WHY DID THE CHICKEN CROSS THE FARM? /
+  WE'LL NEVER KNOW NOW THAT YOU'RE DEAD!`.

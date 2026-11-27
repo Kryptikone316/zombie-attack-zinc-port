@@ -232,7 +232,7 @@ static void darken(void)
     }
 }
 
-static const char *const font_data[41] = {
+static const char *const font_data[42] = {
     "01110100011000111111100011000110001", "11110100011000111110100011000111110",
     "01111100001000010000100001000001111", "11110100011000110001100011000111110",
     "11111100001000011110100001000011111", "11111100001000011110100001000010000",
@@ -253,7 +253,8 @@ static const char *const font_data[41] = {
     "01110100011000101110100011000101110", "01110100011000101111000010000101110",
     "00000001000010011111001000010000000", "00000000000000011111000000000000000",
     "00100001000010000100001000000000100",
-    "00100001000000000000000000000000000", "00000000000000000000000000000000100"
+    "00100001000000000000000000000000000", "00000000000000000000000000000000100",
+    "01110100010000100010001000000000100"
 };
 
 static int font_index(char c)
@@ -265,6 +266,7 @@ static int font_index(char c)
     if (c == '!') return 38;
     if (c == '\'') return 39;
     if (c == '.') return 40;
+    if (c == '?') return 41;
     return 35;
 }
 
@@ -701,7 +703,7 @@ typedef struct {
     const char *line_two;
 } dialogue_t;
 
-static const dialogue_t dialogue_lines[84] = {
+static const dialogue_t dialogue_lines[85] = {
     { "", "" },
     { "YOU WALKED IN!", "NOW WALK IT OFF" },
     { "BACK TO THE GRAVE", "NO AUTOGRAPHS" },
@@ -785,7 +787,8 @@ static const dialogue_t dialogue_lines[84] = {
     { "THE WOLF", "ATE THE SCRIPT" },
     { "NO RED CAPE", "NO PROBLEM" },
     { "I BROUGHT", "THE BASKET CASE" },
-    { "FAIRY TALE", "FARM FAIL" }
+    { "FAIRY TALE", "FARM FAIL" },
+    { "WHY DID THE CHICKEN CROSS THE FARM?", "WE'LL NEVER KNOW NOW THAT YOU'RE DEAD!" }
 };
 
 void zombie_host_dialogue(int id, int x, int y)
