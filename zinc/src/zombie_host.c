@@ -701,17 +701,17 @@ typedef struct {
     const char *line_two;
 } dialogue_t;
 
-static const dialogue_t dialogue_lines[59] = {
+static const dialogue_t dialogue_lines[70] = {
     { "", "" },
-    { "WALKER DOWN!", "NEXT TARGET" },
-    { "BACK TO THE GRAVE", "YOU GO" },
+    { "YOU WALKED IN!", "NOW WALK IT OFF" },
+    { "BACK TO THE GRAVE", "NO AUTOGRAPHS" },
     { "FERAL SPEED", "ZERO SURVIVAL" },
-    { "FAST AND FURIOUS", "NOT FAST ENOUGH" },
-    { "HEAVY METAL", "SCRAPPED" },
+    { "FAST MOVE", "SLOW EXIT" },
+    { "HEAVY METAL", "LIGHTS OUT" },
     { "TANKS FOR NOTHING", "YOUR ARMOR IS GONE" },
     { "FRIED CHICKEN", "COMING RIGHT UP" },
     { "THAT CHICKEN", "CAME HOME TO DIE" },
-    { "PIG DOWN", "DINNER IS SERVED" },
+    { "PIG DOWN", "BACON THEATER" },
     { "BACON MEETS BULLETS", "BREAKFAST IS READY" },
     { "BAAAAAD TIME!", "YOU ARE DEAD" },
     { "WOOL BE SEEING YOU", "NOT" },
@@ -760,7 +760,18 @@ static const dialogue_t dialogue_lines[59] = {
     { "DON'T HAVE A COW!", "WAIT..." },
     { "THAT COW", "IS HAVING A BAD DAY" },
     { "STOP CHICKEN ME OUT...", "IT'S CREEPY" },
-    { "THAT CHICKEN", "IS NO JOKE" }
+    { "THAT CHICKEN", "IS NO JOKE" },
+    { "THE WRONG MOVIE", "FOR YOU WALKER" },
+    { "RUNNING ON EMPTY", "LIKE YOUR FUTURE" },
+    { "BIG GUY", "BIGGER TARGET" },
+    { "BAD POULTRY", "GOOD AIM" },
+    { "HAMMER TIME", "NO HAM REQUIRED" },
+    { "LAMB TO SLAUGHTER", "CUT TO CREDITS" },
+    { "GOATTA GO", "THE EXIT IS CLOSED" },
+    { "FARM TO TABLE", "TABLE FOR ONE" },
+    { "NO PROB-LLAMA", "PROBLEM SOLVED" },
+    { "YOUR RAINBOW", "HAS BEEN CANCELED" },
+    { "BIRD BRAINS", "MEET BULLETS" }
 };
 
 void zombie_host_dialogue(int id, int x, int y)

@@ -214,3 +214,12 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added dedicated apostrophe and period glyphs for punctuation such as the cow
   variation `DON'T HAVE A COW! WAIT...`.
 - Added a rarer chicken variation: `STOP CHICKEN ME OUT... / IT'S CREEPY`.
+
+### 2026-11-27 — Expanded anti-hero enemy banter
+
+- Expanded every zombie family to at least three selectable kill lines, with
+  four for sheep and unicorns; rare chicken and cow branches retain their
+  dedicated farm puns.
+- Reworked the delivery toward an original snarky action-hero voice: groan-
+  level wordplay, cynical one-liners, and light fourth-wall flavor without
+  making every kill produce a comment.

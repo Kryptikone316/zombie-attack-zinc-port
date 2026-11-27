@@ -269,6 +269,30 @@ func say dialogue (id: int)
 	dialogue time = 2800
 end
 
+func say dialogue trio (first: int, second: int, third: int)
+	def variation = random number (3)
+	if variation == 0
+		say dialogue (first)
+	elsif variation == 1
+		say dialogue (second)
+	else
+		say dialogue (third)
+	end
+end
+
+func say dialogue quad (first: int, second: int, third: int, fourth: int)
+	def variation = random number (4)
+	if variation == 0
+		say dialogue (first)
+	elsif variation == 1
+		say dialogue (second)
+	elsif variation == 2
+		say dialogue (third)
+	else
+		say dialogue (fourth)
+	end
+end
+
 func update dialogue (elapsed: int)
 	if dialogue time > 0
 		dialogue time -= elapsed
@@ -289,35 +313,35 @@ func say enemy dialogue (enemy type: int)
 		return
 	end
 	if enemy type == 0
-		say dialogue (1 + random number (2))
+		say dialogue trio (1, 2, 59)
 	elsif enemy type == 1
-		say dialogue (3 + random number (2))
+		say dialogue trio (3, 4, 60)
 	elsif enemy type == 2
-		say dialogue (5 + random number (2))
+		say dialogue trio (5, 6, 61)
 	elsif enemy type == 3
 		if random number (4) == 0
 			say dialogue (57 + random number (2))
 		else
-			say dialogue (7 + random number (2))
+			say dialogue trio (7, 8, 62)
 		end
 	elsif enemy type == 4
-		say dialogue (9 + random number (2))
+		say dialogue trio (9, 10, 63)
 	elsif enemy type == 5
-		say dialogue (11 + random number (3))
+		say dialogue quad (11, 12, 13, 64)
 	elsif enemy type == 6
-		say dialogue (14 + random number (2))
+		say dialogue trio (14, 15, 65)
 	elsif enemy type == 7
 		if random number (4) == 0
 			say dialogue (55)
 		else
-			say dialogue (16 + random number (2))
+			say dialogue trio (16, 17, 66)
 		end
 	elsif enemy type == 8
-		say dialogue (18 + random number (2))
+		say dialogue trio (18, 19, 67)
 	elsif enemy type == 9
-		say dialogue (20 + random number (3))
+		say dialogue quad (20, 21, 22, 68)
 	else
-		say dialogue (23 + random number (2))
+		say dialogue trio (23, 24, 69)
 	end
 end
 
