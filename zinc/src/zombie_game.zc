@@ -494,7 +494,11 @@ func say enemy dialogue (enemy type: int)
 	elsif enemy type == 4
 		say dialogue trio (9, 10, 63)
 	elsif enemy type == 5
-		say dialogue quad (11, 12, 13, 64)
+		if random number (4) == 0
+			say dialogue (189)
+		else
+			say dialogue quad (11, 12, 13, 64)
+		end
 	elsif enemy type == 6
 		if random number (5) == 0
 			say dialogue (85)

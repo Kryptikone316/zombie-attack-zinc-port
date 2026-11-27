@@ -289,3 +289,5 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added a rare three-beat zombie distraction sequence: `IS THAT A YETI OVER
   THERE?`, followed by `DANG... DIDN'T WORK. / WORTH A TRY.`, then `BACK TO
   SHOOTING / PLAN B IS BULLETS`.
+- Added a rare sheep-specific counting joke: `IF YOU GUYS COUNT YOURSELVES /
+  DO YOU FALL ASLEEP? GUESS NOT.`.

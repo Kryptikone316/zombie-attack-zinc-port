@@ -703,7 +703,7 @@ typedef struct {
     const char *line_two;
 } dialogue_t;
 
-static const dialogue_t dialogue_lines[189] = {
+static const dialogue_t dialogue_lines[190] = {
     { "", "" },
     { "YOU WALKED IN!", "NOW WALK IT OFF" },
     { "BACK TO THE GRAVE", "NO AUTOGRAPHS" },
@@ -892,7 +892,8 @@ static const dialogue_t dialogue_lines[189] = {
     { "WHY DOES THAT TRACTOR NEVER MOVE?", "IS IT ON BREAK?" },
     { "IS THAT A YETI OVER THERE?", "HEY, LOOK!" },
     { "DANG... DIDN'T WORK.", "WORTH A TRY." },
-    { "BACK TO SHOOTING", "PLAN B IS BULLETS" }
+    { "BACK TO SHOOTING", "PLAN B IS BULLETS" },
+    { "IF YOU GUYS COUNT YOURSELVES", "DO YOU FALL ASLEEP? GUESS NOT." }
 };
 
 void zombie_host_dialogue(int id, int x, int y)
