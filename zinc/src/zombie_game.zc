@@ -61,7 +61,7 @@ equ screen help = 3
 equ max zombies = 32
 equ max bullets = 64
 equ max upgrades = 10
-equ max pickups = 4
+equ max pickups = 6
 equ max cow pies = 8
 equ max squirrel nuts = 6
 equ max rescue pigs = 3
@@ -70,11 +70,12 @@ equ pig field = 1
 equ pig carried = 2
 equ pig saved = 3
 equ pig lost = 4
-// The visible barn door is narrower than the player's collision footprint.
-// Use a forgiving entrance zone so a carried piglet can actually be handed
-// off without requiring pixel-perfect positioning at the extreme left edge.
-equ barn x max = 155
-equ barn y min = 360
+// The black barn doorway occupies roughly x=75..110 and y=230..280 in the
+// background. The carried piglet is drawn above the player's baseline, so
+// delivery must happen at the upper edge of the walkable field, not below it.
+equ barn x min = 55
+equ barn x max = 130
+equ barn y max = 350
 equ dog inactive = 0
 equ dog active = 1
 equ dog retreating = 2
@@ -620,7 +621,7 @@ func reset game
 	player damage = 10
 	player shot delay = 90
 	player life max = 20
-	player ammo max = 100
+	player ammo max = 180
 	player ammo = player ammo max
 	player damage boost = 0
 	player damage boost time = 0
@@ -638,7 +639,7 @@ func reset game
 	spawn time = 0
 	spawn interval = 2000
 	pickup spawn time = 0
-	pickup spawn interval = 9000
+	pickup spawn interval = 5500
 	wolf spawn time = 0
 	wolf spawn interval = 32000
 	pig event time = 0
@@ -973,13 +974,16 @@ func spawn pickup
 	end
 	pickup active[i] = 1
 	def roll = random number (100)
-	if roll < 40
+	// Ammo is common enough to sustain ordinary rifle use and becomes
+	// guaranteed while reserves are low. Enhanced survival should not hinge on
+	// one favorable drop roll.
+	if player ammo <= player ammo max / 3
 		pickup type[i] = pickup ammo
-	elsif roll < 65
+	elsif roll < 55
 		pickup type[i] = pickup health
-	elsif roll < 82
+	elsif roll < 75
 		pickup type[i] = pickup damage
-	elsif roll < 92
+	elsif roll < 88
 		pickup type[i] = pickup speed
 	else
 		pickup type[i] = pickup rapid
@@ -1073,7 +1077,7 @@ func update pickups (elapsed: int)
 						say pickup dialogue (pickup type[i])
 					else
 						if player ammo < player ammo max
-							player ammo += 30
+							player ammo += 60
 							if player ammo > player ammo max
 								player ammo = player ammo max
 							end
@@ -1387,7 +1391,8 @@ func update rescue pigs (elapsed: int)
 				terminal = 0
 			pig x[i] = player x
 			pig y[i] = player y - 70
-			if player x <= barn x max && player y >= barn y min
+				if player x >= barn x min && player x <= barn x max &&
+				   player y <= barn y max
 				pig state[i] = pig saved
 				pig carried index = -1
 				pig saved count += 1
@@ -1913,9 +1918,9 @@ func fire bullet
 		player ammo -= 1
 		bullet damage[i] = player attack damage
 	else
-		// The pistol remains available, but is deliberately weaker and slower.
+		// The pistol remains available as a meaningful emergency fallback.
 		pistol = 1
-		bullet damage[i] = player attack damage / 2
+		bullet damage[i] = player attack damage * 3 / 4
 		if bullet damage[i] < 1
 			bullet damage[i] = 1
 		end
@@ -1951,7 +1956,7 @@ func fire bullet
 	end
 	bullet y[i] = player y + spread
 	if pistol <> 0
-		player shoot time = 650
+		player shoot time = 300
 	end
 	zombie_host_sound (0)
 end
@@ -2798,7 +2803,7 @@ public [name="c"] func main (argc: int, argv: [] string)
 					if pickup spawn time > pickup spawn interval
 						pickup spawn time -= pickup spawn interval
 						spawn pickup
-						pickup spawn interval = 7000 + random number (7000)
+						pickup spawn interval = 4000 + random number (4000)
 					end
 					if player score >= player next level && upgrade pending == 0
 						player level += 1

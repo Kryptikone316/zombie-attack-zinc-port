@@ -40,9 +40,12 @@ occupy distinct stat tiers between pigs and cows. Occasional tinted mutations
 can inflict poison damage-over-time or temporarily cripple movement; status
 icons appear above the commando. Rare farm-themed pickups provide health
 restoration, damage, movement speed, firing-rate, or ammunition replenishment.
-Rifle ammunition is finite; at zero, the commando falls back to a weak,
-slower pistol shot. Every shot has a cooldown and ordinary fire has bounded
-spread, while Laser Aim improves both accuracy and damage.
+Rifle ammunition is finite; at zero, the commando falls back to a weaker,
+slower pistol shot that remains combat-viable. Enhanced ammo pickups are
+common enough to sustain rifle use, become guaranteed when reserves are low,
+and replenish a larger portion of the magazine. Every shot has a cooldown and
+ordinary fire has bounded spread, while Laser Aim improves both accuracy and
+damage.
 
 Rare zombie crows fly in irregular vertical weaving patterns while drifting
 toward the commando's area. They have low health and contact damage, making

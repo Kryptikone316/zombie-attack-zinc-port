@@ -308,5 +308,17 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Corrected the generated BMPs to use uncompressed 8-bit palette data. The
   first generated sheets were RLE8-compressed, which the host loader rejects
   during startup even though the MIPS executable itself compiles successfully.
+
+### 2026-11-27 — Pig delivery and enhanced ammunition balance
+
+- Reworked piglet delivery to require entering the large black barn doorway's
+  actual footprint rather than the lower battlefield area. The zone is
+  forgiving across the doorway width while remaining spatially intentional.
+- Increased Enhanced starting ammo, refill size, pickup capacity, and pickup
+  cadence. Ammo is now guaranteed when reserves fall below one-third of the
+  magazine, removing the prior 40% drop-roll dependency.
+- Improved the empty-ammo pistol to deal 75% of normal attack damage with a
+  300 ms cooldown, preserving an emergency fallback without making it equal to
+  the rifle.
 - Added a rare sheep-specific counting joke: `IF YOU GUYS COUNT YOURSELVES /
   DO YOU FALL ASLEEP? GUESS NOT.`.
