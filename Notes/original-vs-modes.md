@@ -279,3 +279,4 @@ current/max ranks without adding a platform-sensitive ABI structure.
   duty, movie framing, oversized bravado, and the possibility that this is the
   commando's last day. These bridge the other dialogue pools into a more
   coherent character voice instead of making each joke feel isolated.
+- Added the rare crow-specific reaction: `EVEN THE CROWS HAVE THE BUG? / SIGH...`.
