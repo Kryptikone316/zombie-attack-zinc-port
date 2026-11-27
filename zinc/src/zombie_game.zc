@@ -147,6 +147,8 @@ def wolf event seen: int
 def pickup taunt last: int
 def scenery comment cooldown: int
 def scenery comment last: int
+def director comment cooldown: int
+def director comment last: int
 def ambient story cooldown: int
 def ambient story active: int
 def ambient story index: int
@@ -359,6 +361,7 @@ func start ambient story
 	// Keep the two ambient systems from speaking back-to-back.
 	farm joke cooldown = 26000 + random number (18000)
 	scenery comment cooldown = 22000 + random number (12000)
+	director comment cooldown = 22000 + random number (12000)
 	ambient story cooldown = 55000 + random number (35000)
 end
 
@@ -371,6 +374,9 @@ func update dialogue (elapsed: int)
 	end
 	if scenery comment cooldown > 0
 		scenery comment cooldown -= elapsed
+	end
+	if director comment cooldown > 0
+		director comment cooldown -= elapsed
 	end
 	if dialogue time > 0
 		dialogue time -= elapsed
@@ -395,11 +401,23 @@ func update dialogue (elapsed: int)
 			say dialogue (70 + random number (8))
 		end
 		farm joke cooldown = 24000 + random number (18000)
+		if director comment cooldown <= 0
+			director comment cooldown = 22000 + random number (12000)
+		end
 	elsif enhanced mode <> 0 && ambient story cooldown <= 0
 		start ambient story
 	elsif enhanced mode <> 0 && scenery comment cooldown <= 0
 		say scenery dialogue
 		scenery comment cooldown = 70000 + random number (40000)
+		if director comment cooldown <= 0
+			director comment cooldown = 22000 + random number (12000)
+		end
+	elsif enhanced mode <> 0 && director comment cooldown <= 0
+		say director dialogue
+		director comment cooldown = 120000 + random number (60000)
+		if scenery comment cooldown <= 0
+			scenery comment cooldown = 22000 + random number (12000)
+		end
 	end
 end
 
@@ -502,6 +520,15 @@ func say scenery dialogue
 	say dialogue (151 + scene)
 end
 
+func say director dialogue
+	def comment = random number (6)
+	if comment == director comment last
+		comment = (comment + 1) % 6
+	end
+	director comment last = comment
+	say dialogue (163 + comment)
+end
+
 func reset game
 	def i = 0
 	player x = 320
@@ -587,6 +614,8 @@ func reset game
 	pickup taunt last = -1
 	scenery comment cooldown = 75000 + random number (45000)
 	scenery comment last = -1
+	director comment cooldown = 120000 + random number (60000)
+	director comment last = -1
 	ambient story cooldown = 42000 + random number (24000)
 	ambient story active = 0
 	ambient story index = 0

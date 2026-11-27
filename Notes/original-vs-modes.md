@@ -272,3 +272,6 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added four rare soundtrack-awareness quips, including `A RADIO MIGHT HAVE
   BEEN NICE...`, to acknowledge the game's intentionally music-free presentation
   with light fourth-wall snark.
+- Added a separate rare six-line “director commentary” pool. The commando can
+  argue with the nonexistent director, demand more zombies, reject a stunt
+  double, or complain about billing as if the farm were a film set.
