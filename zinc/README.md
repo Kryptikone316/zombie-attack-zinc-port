@@ -65,6 +65,9 @@ The rare Yeti distraction is also visual: a subdued, distant Yeti silhouette
 briefly appears at a random rear-field location during the three-part Yeti gag.
 It is decorative only, has no collision, and is never targetable.
 
+Enhanced mode also contains a very rare skeletal farmer easter egg that peeks
+from behind the tractor for a few seconds. It is decorative and non-targetable.
+
 Enhanced mode also contains twelve rare three-part ambient commando stories.
 These combine farm anecdotes, tactical observations, arrogant war-hero
 bravado, and light fourth-wall humor. They use a no-repeat cycle and yield to

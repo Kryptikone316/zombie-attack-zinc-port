@@ -14,6 +14,7 @@ import func zombie_host_time_ms (int): dword
 import func zombie_host_sleep (int)
 import func zombie_host_background (int)
 import func zombie_host_yeti (int, int)
+import func zombie_host_farmer (int, int)
 import func zombie_host_laser (int, int, int, int)
 import func zombie_host_player (int, int, int, int, int)
 import func zombie_host_zombie (int, int, int, int, int, int, int, int)
@@ -158,6 +159,11 @@ def yeti distraction active: int
 def yeti distraction step: int
 def yeti x: int
 def yeti y: int
+def farmer easter egg cooldown: int
+def farmer easter egg active: int
+def farmer easter egg time: int
+def farmer easter egg x: int
+def farmer easter egg y: int
 def ambient story cooldown: int
 def ambient story active: int
 def ambient story index: int
@@ -605,6 +611,27 @@ func start yeti distraction
 	yeti distraction cooldown = 150000 + random number (90000)
 end
 
+func update farmer easter egg (elapsed: int)
+	if enhanced mode == 0
+		return
+	end
+	if farmer easter egg active <> 0
+		farmer easter egg time -= elapsed
+		if farmer easter egg time <= 0
+			farmer easter egg active = 0
+		end
+	else
+		farmer easter egg cooldown -= elapsed
+		if farmer easter egg cooldown <= 0
+			farmer easter egg active = 1
+			farmer easter egg time = 2600 + random number (3200)
+			farmer easter egg x = 550 + random number (55)
+			farmer easter egg y = 316 + random number (6)
+			farmer easter egg cooldown = 120000 + random number (120000)
+		end
+	end
+end
+
 func reset game
 	def i = 0
 	player x = 320
@@ -699,6 +726,11 @@ func reset game
 	yeti distraction step = 0
 	yeti x = 320
 	yeti y = 300
+	farmer easter egg cooldown = 120000 + random number (120000)
+	farmer easter egg active = 0
+	farmer easter egg time = 0
+	farmer easter egg x = 575
+	farmer easter egg y = 320
 	ambient story cooldown = 42000 + random number (24000)
 	ambient story active = 0
 	ambient story index = 0
@@ -2462,6 +2494,9 @@ func draw game
 	if yeti distraction active <> 0
 		zombie_host_yeti (yeti x, yeti y)
 	end
+	if farmer easter egg active <> 0
+		zombie_host_farmer (farmer easter egg x, farmer easter egg y)
+	end
 	if upgrade rank (3) > 0
 		laser end x = laser stop x
 		zombie_host_laser (player x, player y, player direction, laser end x)
@@ -2778,6 +2813,7 @@ public [name="c"] func main (argc: int, argv: [] string)
 					update farm helpers (elapsed)
 					update time stop (elapsed)
 					update squirrel (elapsed)
+					update farmer easter egg (elapsed)
 					if pig event started <> 0 && wolf summoned == 0 && wolf active == 0
 						wolf spawn time += elapsed
 						if wolf spawn time > 12000

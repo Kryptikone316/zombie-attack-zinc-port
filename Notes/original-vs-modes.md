@@ -292,6 +292,9 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added a generated 40x48 distant Yeti sprite. It appears in a random rear-
   field location for the duration of the Yeti distraction, is decorative only,
   and never enters collision, targeting, or enemy state.
+- Added a 32x40 skeletal farmer easter-egg sprite. Enhanced mode rarely shows
+  its upper body peeking from behind the tractor, with no collision, targeting,
+  scoring, or enemy state.
 
 ### 2026-11-27 — Unified enemy and character art pass
 

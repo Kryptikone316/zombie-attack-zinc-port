@@ -12,7 +12,7 @@
 
 #define GAME_W 640
 #define GAME_H 480
-#define ASSET_COUNT 32
+#define ASSET_COUNT 33
 #define ASSET_FARM 0
 #define ASSET_COMMANDO 1
 #define ASSET_ZOMBIE 2
@@ -45,6 +45,7 @@
 #define ASSET_BAD_NUT 29
 #define ASSET_ICON 30
 #define ASSET_YETI 31
+#define ASSET_FARMER 32
 
 typedef struct {
     int w;
@@ -342,7 +343,8 @@ int zombie_host_init(int unused)
         "status-rapid.bmp", "cow-pie.bmp", "animal-crow.bmp",
         "rescue-piglet.bmp", "big-bad-wolf.bmp", "beagle-buddy.bmp",
         "pickup-ammo.bmp", "lawn-mower.bmp", "wood-chipper.bmp",
-        "squirrel.bmp", "bad-nut.bmp", "icon.bmp", "yeti.bmp"
+        "squirrel.bmp", "bad-nut.bmp", "icon.bmp", "yeti.bmp",
+        "farmer-easter-egg.bmp"
     };
     int i;
     (void)unused;
@@ -461,6 +463,13 @@ void zombie_host_background(int night)
 void zombie_host_yeti(int x, int y)
 {
     draw_image(ASSET_YETI, 0, 0, 40, 48, x - 20, y - 48, 0);
+}
+
+void zombie_host_farmer(int x, int y)
+{
+    /* Only the upper body is exposed; the lower sprite edge stays hidden
+     * behind the tractor silhouette baked into the farm background. */
+    draw_image(ASSET_FARMER, 0, 0, 32, 30, x - 16, y - 40, 0);
 }
 
 void zombie_host_laser(int x, int y, int direction, int stop_x)
