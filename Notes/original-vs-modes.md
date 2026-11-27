@@ -237,3 +237,4 @@ current/max ranks without adding a platform-sensitive ABI structure.
   WE'LL NEVER KNOW NOW THAT YOU'RE DEAD!`.
 - Added a rare goat-kill punchline: `TOTES MA'GOATS. / YOU'RE GOING TO MAKE A
   LOVELY TOTE!`.
+- Added a rare llama-kill punchline: `OH GREAT... / LLAMA DRAMA...`.
