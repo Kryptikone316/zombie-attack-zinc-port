@@ -269,3 +269,6 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added eight long-cooldown scenery comments covering the barn, tree, broken
   fence, crops, day/night cycle, and the generally questionable scenery. They
   are context-aware for day versus night and avoid immediate repeats.
+- Added four rare soundtrack-awareness quips, including `A RADIO MIGHT HAVE
+  BEEN NICE...`, to acknowledge the game's intentionally music-free presentation
+  with light fourth-wall snark.
