@@ -1005,12 +1005,6 @@ func spawn zombie
 		zombie armor[i] = 0
 		zombie contact damage[i] = 1
 	end
-	if enhanced mode == 0
-		zombie life[i] = 20
-		zombie speed[i] = 50
-		zombie armor[i] = 0
-		zombie contact damage[i] = 1
-	end
 	if zombie mutation[i] <> 0
 		if zombie mutation[i] == 1
 			// Mutated walker: aggressive bruiser.
@@ -2557,6 +2551,11 @@ func update upgrade (keys: dword)
 	if ((keys & key b) <> 0 && (last keys & key b) == 0) ||
 	   ((keys & key start) <> 0 && (last keys & key start) == 0)
 		upgrade menu = 0
+		if enhanced mode == 0
+			// Classic's only upgrade-menu addition is a real cancel path;
+			// leaving it resumes play instead of forcing the menu open again.
+			upgrade pending = 0
+		end
 		return
 	end
 	if (keys & key up) <> 0 && (last keys & key up) == 0

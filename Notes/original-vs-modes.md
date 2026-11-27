@@ -8,7 +8,7 @@ under `Installer/ZombieAttack/` and is never edited by the port.
 
 | Mode | Contract | Status |
 | --- | --- | --- |
-| Classic | Preserve the supplied game's rules, upgrade model, timing, and one-time upgrade flags. | Implemented in Zinc baseline path; hardware confirmation pending |
+| Classic | Preserve the supplied game's rules, upgrade model, timing, and one-time upgrade flags. | Implemented in Zinc baseline path; only Pause and upgrade-menu cancel are added; hardware confirmation pending |
 | Enhanced | Preserve the original as a baseline while adding bounded ranked stat upgrades and optional configuration knobs. | In progress |
 
 ## Recorded differences
@@ -177,6 +177,9 @@ current/max ranks without adding a platform-sensitive ABI structure.
   source level/spawn escalation, and one-time upgrade-flag behavior.
 - Classic intentionally does not apply the Enhanced contact-damage/game-over,
   ammo, spread, support, pickup, mutation, rescue, or ranked-upgrade systems.
+- Classic's only deliberate gameplay additions are Start pause/resume and B or
+  Start canceling the otherwise blocking upgrade menu. Canceling an offer
+  resumes play and does not apply that upgrade.
 
 ### 2026-11-27 — Menu contrast and Enhanced ammunition balance
 

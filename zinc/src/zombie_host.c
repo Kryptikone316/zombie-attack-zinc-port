@@ -1091,8 +1091,8 @@ void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks,
         "MORE DAMAGE", "LAWN MOWER"
     };
     static const char *classic_labels[10] = {
-        "FAST WALK", "MORE SHOTS", "FAST SHOOT", "LASER AIM",
-        "MORE DIRECTIONS", "TIME STOP", "MORE LIFE", "FAST LIFE",
+        "FAST WALKING", "MORE SHOTS", "FAST SHOOTING", "LASER AIM",
+        "MORE DIRECTIONS", "TIME STOP", "MORE LIFE", "FAST LIFE RESTORE",
         "MORE DAMAGE", "GRENADES"
     };
     static const unsigned int codes[10] = {
@@ -1117,11 +1117,15 @@ void zombie_host_upgrade(int selected, unsigned int flags, unsigned int ranks,
             fill_rect(x - 3, y - 3, 256, 35, owned ? 0xf800 : 0x4208);
         }
         fill_rect(x, y, 250, 29, owned ? 0x7bef : 0x8c41);
-        draw_text(x + 8, y + 7, enhanced ? enhanced_labels[i] : classic_labels[i], 2);
-        draw_text(x + 195, y + 8, "R", 1);
-        draw_number(x + 204, y + 8, rank);
-        draw_text(x + 216, y + 8, "M", 1);
-        draw_number(x + 225, y + 8, max_rank);
+        draw_text(x + 8, y + (enhanced ? 7 : 9),
+                  enhanced ? enhanced_labels[i] : classic_labels[i],
+                  enhanced ? 2 : 1);
+        if (enhanced) {
+            draw_text(x + 195, y + 8, "R", 1);
+            draw_number(x + 204, y + 8, rank);
+            draw_text(x + 216, y + 8, "M", 1);
+            draw_number(x + 225, y + 8, max_rank);
+        }
     }
     draw_text(175, 345, "A SELECT", 2);
     draw_text(295, 345, "B START CANCEL", 1);

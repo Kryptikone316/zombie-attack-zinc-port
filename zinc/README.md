@@ -32,7 +32,8 @@ art. Its gameplay path restores the supplied source's three humanoid classes,
 off-screen spawn geometry, movement cadence, 500 px/s bullet stepping, narrow
 bullet collision, rifle heat/overload behavior, score thresholds, and one-time
 upgrade flags. It does not run the Enhanced ammo, spread, support, pickup,
-mutation, rescue, or ranked-stat systems. Enhanced mode loads the separate
+mutation, rescue, or ranked-stat systems. Its only gameplay additions are
+Start pause/resume and B or Start canceling the upgrade menu. Enhanced mode loads the separate
 `data/enhanced/` set and enables the Zinc additions.
 
 The package root `data/` remains an Enhanced-compatible fallback for older
