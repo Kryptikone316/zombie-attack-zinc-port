@@ -196,6 +196,8 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Updated the in-game guide to explain that shooting the invulnerable wolf
   slows him, all three piglets must be saved before he can take damage, and
   High Scores is available from the launcher.
+- Clarified that the day/night cycle changes field visibility and presentation
+  only; enemy movement and spawning rules remain unchanged.
 
 ### 2026-11-27 — Numeric font glyph correction
 
