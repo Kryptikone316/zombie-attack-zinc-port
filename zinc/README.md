@@ -84,6 +84,11 @@ All farm-animal enemies use visibly undead artwork: sickly coloration, dark
 faces, red eyes, and wound marks. The humanoid enemy classes retain the
 original zombie artwork.
 
+The Enhanced visual pass now uses a consistent limited-palette pixel-art
+treatment for the undead animals, crow, squirrel, human zombie classes,
+commando, and Beagle Buddy. Existing sprite-sheet dimensions and animation
+contracts are preserved so this is a visual-only replacement.
+
 The primary HUD uses larger, separated text and displays a sun icon during
 daytime or a crescent moon at night.
 

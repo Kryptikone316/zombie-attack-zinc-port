@@ -292,5 +292,15 @@ current/max ranks without adding a platform-sensitive ABI structure.
 - Added a generated 40x48 distant Yeti sprite. It appears in a random rear-
   field location for the duration of the Yeti distraction, is decorative only,
   and never enters collision, targeting, or enemy state.
+
+### 2026-11-27 — Unified enemy and character art pass
+
+- Replaced the placeholder-style farm animal, crow, squirrel, human zombie,
+  commando, and Beagle Buddy artwork with a consistent limited-palette
+  pixel-art treatment matching the Yeti's visual language.
+- Preserved the original asset dimensions and sprite-sheet layouts, including
+  the three human zombie rows, commando pose rows, Beagle Buddy frames, and
+  two-frame squirrel/crow sheets. Gameplay, collision geometry, and targeting
+  behavior are unchanged.
 - Added a rare sheep-specific counting joke: `IF YOU GUYS COUNT YOURSELVES /
   DO YOU FALL ASLEEP? GUESS NOT.`.
