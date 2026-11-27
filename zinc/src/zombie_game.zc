@@ -113,7 +113,7 @@ def player gun warm: int
 def player gun warm time: int
 def player gun overload time: int
 def player gun warm max: int
-def player gun latched: int
+def player classic shooting: int
 def player life: int
 def player score: int
 def player level: int
@@ -675,7 +675,7 @@ func reset game
 	player gun warm = 0
 	player gun warm time = 0
 	player gun overload time = 0
-	player gun latched = 0
+	player classic shooting = 0
 	player life = 20
 	player score = 0
 	player level = 1
@@ -2615,7 +2615,7 @@ func update player (keys: dword, elapsed: int)
 	def dx = 0
 	def dy = 0
 	def move speed = player movement speed
-	if enhanced mode == 0 && (keys & key a) <> 0
+	if enhanced mode == 0 && player classic shooting <> 0
 		// In the supplied player_keydown() the shot animation suspends
 		// character movement until fire is released.
 		move speed = 0
@@ -2639,8 +2639,19 @@ func update player (keys: dword, elapsed: int)
 			end
 		end
 		if (keys & key a) == 0
-			player gun latched = 0
+			player classic shooting = 0
+		elsif (last keys & key a) == 0
+			// Match player_keydown(): a press during overload is ignored;
+			// the player must release and press again after it cools.
+			if player gun overload time == 0
+				player classic shooting = 1
+			else
+				player classic shooting = 0
+			end
 		end
+	end
+	if enhanced mode == 0 && player classic shooting <> 0
+		move speed = 0
 	end
 	player moving = 0
 	if (keys & key left) <> 0
@@ -2691,11 +2702,11 @@ func update player (keys: dword, elapsed: int)
 		end
 	end
 	if enhanced mode == 0
-		if (keys & key a) <> 0 && player shoot time <= 0 &&
-		   player gun overload time == 0 && player gun latched == 0
+		if player classic shooting <> 0 && player shoot time <= 0 &&
+		   player gun overload time == 0
 			if player gun warm >= player gun warm max
 				player gun overload time = 2000
-				player gun latched = 1
+				player classic shooting = 0
 			else
 				fire bullet
 				player gun warm += 1
@@ -2789,7 +2800,8 @@ func draw game
 	if player rapid time > 0
 		status rapid = 1
 	end
-	if player shoot time > 0
+	if player shoot time > 0 ||
+	   (enhanced mode == 0 && player classic shooting <> 0)
 		player state = 2
 	elsif player moving <> 0
 		player state = 1
