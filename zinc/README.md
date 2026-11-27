@@ -58,6 +58,10 @@ dialogue bubble. Lines are throttled so combat remains readable and varied
 comments are tied to enemy types, piglet rescue, wolf encounters, crows,
 unicorns, support upgrades, the Beagle Buddy, and pickups.
 
+The rare Yeti distraction is also visual: a subdued, distant Yeti silhouette
+briefly appears at a random rear-field location during the three-part Yeti gag.
+It is decorative only, has no collision, and is never targetable.
+
 Enhanced mode also contains twelve rare three-part ambient commando stories.
 These combine farm anecdotes, tactical observations, arrogant war-hero
 bravado, and light fourth-wall humor. They use a no-repeat cycle and yield to

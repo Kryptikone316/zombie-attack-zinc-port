@@ -13,6 +13,7 @@ import func zombie_host_keys (int): dword
 import func zombie_host_time_ms (int): dword
 import func zombie_host_sleep (int)
 import func zombie_host_background (int)
+import func zombie_host_yeti (int, int)
 import func zombie_host_laser (int, int, int, int)
 import func zombie_host_player (int, int, int, int, int)
 import func zombie_host_zombie (int, int, int, int, int, int, int, int)
@@ -154,6 +155,8 @@ def transition comment last: int
 def yeti distraction cooldown: int
 def yeti distraction active: int
 def yeti distraction step: int
+def yeti x: int
+def yeti y: int
 def ambient story cooldown: int
 def ambient story active: int
 def ambient story index: int
@@ -594,6 +597,8 @@ func start yeti distraction
 	end
 	yeti distraction active = 1
 	yeti distraction step = 1
+	yeti x = 40 + random number (560)
+	yeti y = 280 + random number (45)
 	dialogue id = 186
 	dialogue time = 2800
 	yeti distraction cooldown = 150000 + random number (90000)
@@ -691,6 +696,8 @@ func reset game
 	yeti distraction cooldown = 150000 + random number (90000)
 	yeti distraction active = 0
 	yeti distraction step = 0
+	yeti x = 320
+	yeti y = 300
 	ambient story cooldown = 42000 + random number (24000)
 	ambient story active = 0
 	ambient story index = 0
@@ -2447,6 +2454,9 @@ func draw game
 		player state = 1
 	end
 	zombie_host_background (night)
+	if yeti distraction active <> 0
+		zombie_host_yeti (yeti x, yeti y)
+	end
 	if upgrade rank (3) > 0
 		laser end x = laser stop x
 		zombie_host_laser (player x, player y, player direction, laser end x)
