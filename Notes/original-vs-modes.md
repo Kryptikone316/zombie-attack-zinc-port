@@ -280,3 +280,6 @@ current/max ranks without adding a platform-sensitive ABI structure.
   commando's last day. These bridge the other dialogue pools into a more
   coherent character voice instead of making each joke feel isolated.
 - Added the rare crow-specific reaction: `EVEN THE CROWS HAVE THE BUG? / SIGH...`.
+- Added six occasional livestock-duty quips for zombified barn animals,
+  including `I SIGNED UP FOR ZOMBIES / NOT FARM ANIMALS` and `I'M A COMMANDO /
+  NOT A BARNHAND`.

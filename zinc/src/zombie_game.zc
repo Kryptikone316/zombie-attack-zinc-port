@@ -456,6 +456,10 @@ func say enemy dialogue (enemy type: int)
 		end
 		return
 	end
+	if enemy type >= 3 && enemy type <= 9 && random number (5) == 0
+		say dialogue (178 + random number (6))
+		return
+	end
 	if enemy type == 0
 		say dialogue trio (1, 2, 59)
 	elsif enemy type == 1
