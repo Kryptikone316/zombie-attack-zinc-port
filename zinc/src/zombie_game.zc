@@ -1037,7 +1037,7 @@ func squirrel nut impact (impact x: int, impact y: int)
 		dog hit time = 160
 		if dog life <= 0
 			dog life = 0
-			dog state = dog retreating
+			retreat dog
 		end
 	end
 	if wolf active <> 0 && wolf vulnerable <> 0 && absolute (wolf x - impact x) < 34 &&
@@ -1351,6 +1351,13 @@ func activate dog
 	dog hit time = 0
 end
 
+func retreat dog
+	if dog state == dog active
+		dog state = dog retreating
+		say dialogue (131 + random number (4))
+	end
+end
+
 func update dog (elapsed: int)
 	def i = 0
 	def target = -1
@@ -1412,7 +1419,7 @@ func update dog (elapsed: int)
 	end
 	dog active time -= elapsed
 	if dog active time <= 0
-		dog state = dog retreating
+		retreat dog
 		return
 	end
 	while i < max zombies
@@ -2032,7 +2039,7 @@ func update zombies (elapsed: int)
 					dog hit time = 250
 					if dog life <= 0
 						dog life = 0
-						dog state = dog retreating
+						retreat dog
 					end
 				end
 			end
